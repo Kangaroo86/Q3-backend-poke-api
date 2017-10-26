@@ -1,0 +1,29 @@
+---
+swagger: '2.0'
+info:
+  version: 0.0.0
+  title: Pokemon Arena
+paths:
+  /user:
+    post:
+      description: User sign up
+      produces:
+        -application/json
+      parameters:
+        -name: firstname
+        in: body
+        type: string
+        required: true
+        schema:
+          $ref: "#/definitions/user"
+      responses:
+        '200':
+          description: Users input valid
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+        default:
+          description: unexpected error
+          schema:
+          $ref: '#/definitions/errorModel'
