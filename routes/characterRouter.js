@@ -1,13 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-//const humps = require('humps');
 
-router.get('/character', (request, response, next) => {
-  knex('character')
-    .orderBy('pokemonId', 'asc')
-    .then(character => {
-      character.json(character);
+router.get('/characters', (request, response, next) => {
+  knex('Character')
+    .orderBy('id', 'asc')
+    .then(allCharacter => {
+      response.json(allCharacter);
     })
     .catch(err => next(err));
 });

@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
 
-router.post('user', (request, response, next) => {
+router.post('users', (request, response, next) => {
   if (!request.body.password) {
     response
       .set('Content-Type', 'text/plain')
@@ -20,7 +20,7 @@ router.post('user', (request, response, next) => {
     bcrypt
       .hash(request.body.password, 12)
       .then(hash_password => {
-        return knex('user').insert(
+        return knex('User').insert(
           {
             name: request.body.name,
             email: request.body.email,
@@ -52,7 +52,7 @@ router.post('user', (request, response, next) => {
   }
 });
 
-router.get('/user', (response, request, next) => {
+router.get('/users', (request, response, next) => {
   knex('User').select('*').then(result => {
     response.json(result).catch(err => {
       next(err);
@@ -60,7 +60,7 @@ router.get('/user', (response, request, next) => {
   });
 });
 
-router.get('/user/:id(\\d+)', (response, request, next) => {
+router.get('/users/:id(\\d+)', (request, response, next) => {
   knex('User').where('id', request.params.id).then(result => {
     response.json(result).catch(err => {
       next(err);
@@ -68,7 +68,7 @@ router.get('/user/:id(\\d+)', (response, request, next) => {
   });
 });
 
-router.patch('/user/:id(\\d+)', (response, request, next) => {
+router.patch('/users/:id(\\d+)', (request, response, next) => {
   let attributes = {
     name: request.body.name
   };
