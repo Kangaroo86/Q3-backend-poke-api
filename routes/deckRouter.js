@@ -4,7 +4,7 @@ const knex = require('../knex');
 const humps = require('humps');
 
 router.get('/deck', (request, response, next) => {
-  knex('deck')
+  knex('Deck')
     .orderBy('name', 'asc')
     .then(deck => {
       response.json(humps.camelizeKeys(deck));
@@ -19,7 +19,7 @@ router.get('/deck/:id(\\d+)', (request, response, next) => {
   if (someId < 0 || someId > 100 || isNaN(someId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
   } else {
-    knex('deck')
+    knex('Deck')
       .where('id', request.params.id)
       .first()
       .then(deck => {
@@ -56,7 +56,7 @@ router.post('/deck', (request, response, next) => {
       .status(400)
       .send('Genre name must not be blank');
   } else {
-    knex('deck')
+    knex('Deck')
       .insert(attributes, '*')
       .then(deck => {
         response.json(humps.camelizeKeys(deck[0]));
@@ -73,7 +73,7 @@ router.delete('/deck/:id(\\d+)', (request, response, next) => {
   if (someId > 100 || someId < 0 || isNaN(someId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
   } else {
-    knex('deck')
+    knex('Deck')
       .where('id', request.params.id)
       .first()
       .then(row => {
