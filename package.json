@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "start": "nodemon index.js",
+    "start": "nodemon server.js",
     "knex": "knex"
   },
   "repository": {
@@ -25,6 +25,7 @@
     "cors": "^2.8.4",
     "express": "^4.16.2",
     "express-jwt": "^5.3.0",
+    "humps": "^2.0.1",
     "isomorphic-fetch": "^2.2.1",
     "jsonwebtoken": "^8.1.0",
     "knex": "^0.13.0",
