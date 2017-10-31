@@ -16,40 +16,32 @@ exports.seed = function(knex, Promise) {
           pokemonId: 7
         },
         {
-          name: 'Ditto',
-          pokemonId: 132
-        },
-        {
-          name: 'Golem',
-          pokemonId: 76
+          name: 'Pikachu',
+          pokemonId: 25
         },
         {
           name: 'Nidoqueen',
           pokemonId: 31
         },
         {
+          name: 'Jigglypuff',
+          pokemonId: 39
+        },
+        {
+          name: 'Golem',
+          pokemonId: 76
+        },
+        {
+          name: 'Gyarados',
+          pokemonId: 130
+        },
+        {
+          name: 'Ditto',
+          pokemonId: 132
+        },
+        {
           name: 'Snorlax',
           pokemonId: 143
-        },
-        {
-          name: 'Groudon',
-          pokemonId: 383
-        },
-        {
-          name: 'Xerneas',
-          pokemonId: 716
-        },
-        {
-          name: 'Mewtwo',
-          pokemonId: 150
-        },
-        {
-          name: 'Mew',
-          pokemonId: 151
-        },
-        {
-          name: 'Pikachu',
-          pokemonId: 25
         },
         {
           name: 'Articuno',
@@ -64,16 +56,24 @@ exports.seed = function(knex, Promise) {
           pokemonId: 146
         },
         {
+          name: 'Mewtwo',
+          pokemonId: 150
+        },
+        {
+          name: 'Mew',
+          pokemonId: 151
+        },
+        {
+          name: 'Groudon',
+          pokemonId: 383
+        },
+        {
           name: 'Raikou',
           pokemonId: 243
         },
         {
-          name: 'Jigglypuff',
-          pokemonId: 39
-        },
-        {
-          name: 'Gyarados',
-          pokemonId: 130
+          name: 'Xerneas',
+          pokemonId: 716
         }
       ]);
     })

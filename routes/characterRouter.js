@@ -1,14 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-const humps = require('humps');
+//const humps = require('humps');
 
 router.get('/character', (request, response, next) => {
-  knex('character').orderBy('pokemonId', 'asc').then(character => {
-    character.json(humps.camelizeKeys(character)).catch(err => next(err));
-  });
+  knex('character')
+    .orderBy('pokemonId', 'asc')
+    .then(character => {
+      character.json(character);
+    })
+    .catch(err => next(err));
 });
 
+module.exports = router;
 // const express = require('express');
 // const Boom = require('boom');
 // const router = express.Router();

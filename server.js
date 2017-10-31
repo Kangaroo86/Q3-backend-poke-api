@@ -37,15 +37,15 @@ app.use((request, response, next) => {
   response.sendStatus(406);
 });
 
-const authenticationRouter = require('./routes/authenticationRouter');
+//const authenticationRouter = require('./routes/authenticationRouter');
 const characterRouter = require('./routes/characterRouter');
-const deckRouter = require('./routes/deckRouter');
-const userRouter = require('./routes/userRouter');
+//const deckRouter = require('./routes/deckRouter');
+//const userRouter = require('./routes/userRouter');
 
-app.use(authenticationRouter);
+//app.use(authenticationRouter);
 app.use(characterRouter);
-app.use(deckRouter);
-app.use(userRouter);
+//app.use(deckRouter);
+//app.use(userRouter);
 
 app.use((request, response) => {
   response.sendStatus(404);
