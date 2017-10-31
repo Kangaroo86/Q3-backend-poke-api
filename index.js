@@ -29,7 +29,10 @@ server.use((request, response, next) => {
       ? authenticatedUserId
       : null;
 
-  console.error('request.authenticatedUserId: ', request.authenticatedUserId);
+  console.error(
+    'request.authenticatedUserId-----------: ',
+    request.authenticatedUserId
+  );
   next();
 });
 
