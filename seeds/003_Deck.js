@@ -7,7 +7,7 @@ exports.seed = function(knex, Promise) {
           name: 'StarterDeck',
           wins: 5,
           losses: 6,
-          userId: 22
+          userId: 1
         }
       ]);
     })

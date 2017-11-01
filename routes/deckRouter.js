@@ -25,7 +25,7 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
         if (!deck) {
           return next();
         }
-        response.json();
+        response.json(deck);
       })
       .catch(err => {
         next(err);
