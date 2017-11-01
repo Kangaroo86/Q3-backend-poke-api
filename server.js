@@ -39,12 +39,12 @@ app.use(express.static(path.join('public')));
 
 //const authenticationRouter = require('./routes/authenticationRouter');
 const characterRouter = require('./routes/characterRouter');
-//const deckRouter = require('./routes/deckRouter');
+const deckRouter = require('./routes/deckRouter');
 const userRouter = require('./routes/userRouter');
 
 //app.use(authenticationRouter);
 app.use(characterRouter);
-//app.use(deckRouter);
+app.use(deckRouter);
 app.use(userRouter);
 
 app.use((request, response) => {

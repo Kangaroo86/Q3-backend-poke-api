@@ -1,20 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-const humps = require('humps');
 
-router.get('/deck', (request, response, next) => {
+router.get('/decks', (request, response, next) => {
   knex('Deck')
     .orderBy('name', 'asc')
     .then(deck => {
-      response.json(humps.camelizeKeys(deck));
+      response.json();
     })
     .catch(err => {
       next(err);
     });
 });
 
-router.get('/deck/:id(\\d+)', (request, response, next) => {
+router.get('/decks/:id(\\d+)', (request, response, next) => {
   let someId = parseInt(request.params.id);
   if (someId < 0 || someId > 100 || isNaN(someId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
@@ -26,7 +25,7 @@ router.get('/deck/:id(\\d+)', (request, response, next) => {
         if (!deck) {
           return next();
         }
-        response.json(humps.camelizeKeys(deck));
+        response.json();
       })
       .catch(err => {
         next(err);
@@ -34,7 +33,7 @@ router.get('/deck/:id(\\d+)', (request, response, next) => {
   }
 });
 
-router.post('/deck', (request, response, next) => {
+router.post('/decks', (request, response, next) => {
   let attributes = {
     name: request.body.name,
     losses: request.body.losses,
@@ -59,7 +58,7 @@ router.post('/deck', (request, response, next) => {
     knex('Deck')
       .insert(attributes, '*')
       .then(deck => {
-        response.json(humps.camelizeKeys(deck[0]));
+        response.json();
       })
       .catch(err => {
         next(err);
@@ -67,7 +66,7 @@ router.post('/deck', (request, response, next) => {
   }
 });
 
-router.delete('/deck/:id(\\d+)', (request, response, next) => {
+router.delete('/decks/:id(\\d+)', (request, response, next) => {
   let deck;
   let someId = parseInt(request.params.id);
   if (someId > 100 || someId < 0 || isNaN(someId) === true) {
@@ -85,7 +84,7 @@ router.delete('/deck/:id(\\d+)', (request, response, next) => {
       })
       .then(() => {
         delete deck.id;
-        response.json(humps.camelizeKeys(deck));
+        response.json();
       })
       .catch(err => {
         next(err);
