@@ -6,7 +6,7 @@ router.get('/decks', (request, response, next) => {
   knex('Deck')
     .orderBy('name', 'asc')
     .then(deck => {
-      response.json();
+      response.json(deck);
     })
     .catch(err => {
       next(err);
@@ -37,7 +37,8 @@ router.post('/decks', (request, response, next) => {
   let attributes = {
     name: request.body.name,
     losses: request.body.losses,
-    wins: request.body.wins
+    wins: request.body.wins,
+    userId: request.body.userId
   };
   if (!request.body.name) {
     response
@@ -58,7 +59,7 @@ router.post('/decks', (request, response, next) => {
     knex('Deck')
       .insert(attributes, '*')
       .then(deck => {
-        response.json();
+        response.json(deck);
       })
       .catch(err => {
         next(err);
