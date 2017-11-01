@@ -81,7 +81,7 @@ router.delete('/decks/:id(\\d+)', (request, response, next) => {
           return next();
         }
         deck = row;
-        return knex('deck').del().where('id', request.params.id);
+        return knex('Deck').del().where('id', request.params.id);
       })
       .then(() => {
         delete deck.id;
