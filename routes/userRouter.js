@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
 
-router.post('users', (request, response, next) => {
+router.post('/users', (request, response, next) => {
   if (!request.body.password) {
     response
       .set('Content-Type', 'text/plain')
@@ -30,6 +31,7 @@ router.post('users', (request, response, next) => {
         );
       })
       .then(users => {
+        //console.log('this is users-----', users);
         const user = users[0];
         let token = jwt.sign(
           {
@@ -41,8 +43,7 @@ router.post('users', (request, response, next) => {
         );
         response.status(200).cookie('token', token, { httpOnly: true }).json({
           id: user.id,
-          firstName: user.first_name,
-          lastName: user.last_name,
+          name: user.name,
           email: user.email
         });
       })
@@ -53,11 +54,15 @@ router.post('users', (request, response, next) => {
 });
 
 router.get('/users', (request, response, next) => {
-  knex('User').select('*').then(result => {
-    response.json(result).catch(err => {
+  knex('User')
+    .select('*')
+    .then(result => {
+      delete result.body.hashedPassword;
+      response.json(result);
+    })
+    .catch(err => {
       next(err);
     });
-  });
 });
 
 router.get('/users/:id(\\d+)', (request, response, next) => {
@@ -70,11 +75,12 @@ router.get('/users/:id(\\d+)', (request, response, next) => {
 
 router.patch('/users/:id(\\d+)', (request, response, next) => {
   let attributes = {
-    name: request.body.name
+    name: request.body.name,
+    email: request.body.email
   };
   knex('User')
     .where('id', request.params.id)
-    .insert(attributes, '*')
+    .update(attributes, '*')
     .then(result => {
       response.json(result);
     })
@@ -107,4 +113,4 @@ router.patch('/users/:id(\\d+)', (request, response, next) => {
 //   next(Boom.methodNotAllowed(null, null, ['OPTIONS', 'GET', 'PATCH', 'DELETE']))
 // );
 //
-// module.exports = router;
+module.exports = router;
