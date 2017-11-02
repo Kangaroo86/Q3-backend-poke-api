@@ -64,36 +64,38 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
 });
 
 router.post('/decks', (request, response, next) => {
-  let attributes = {
-    deckname: request.body.deckname,
-    losses: request.body.losses,
-    wins: request.body.wins,
-    userId: request.body.userId
-  };
   if (!request.body.deckname) {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
-      .send('Title must not be blank');
+      .send('deck name must not be blank');
   } else if (!request.body.losses) {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
-      .send('Author must not be blank');
+      .send('loses counter must not be blank');
   } else if (!request.body.wins) {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
-      .send('Genre deckname must not be blank');
+      .send('wins counter must not be blank');
   } else {
     knex('Deck')
-      .insert(attributes, '*')
+      .insert(
+        {
+          deckname: request.body.deckname,
+          cards: request.body.cards,
+          userId: request.body.userId
+        },
+        '*'
+      )
       .then(deck => {
         response.json(deck);
       })
       .catch(err => {
         next(err);
       });
+    knex('Card').insert({});
   }
 });
 
