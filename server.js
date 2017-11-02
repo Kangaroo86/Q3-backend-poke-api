@@ -7,6 +7,7 @@ const app = express();
 
 app.disable('x-powered-by');
 
+const cors = require('cors');
 const bodyParser = require('body-parser');
 //const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
@@ -22,6 +23,7 @@ switch (process.env.NODE_ENV) {
 }
 
 app.use(bodyParser.json());
+app.use(cors());
 //app.use(cookieParser());
 
 const path = require('path');
@@ -39,11 +41,13 @@ app.use(express.static(path.join('public')));
 
 //const authenticationRouter = require('./routes/authenticationRouter');
 const characterRouter = require('./routes/characterRouter');
+const cardRouter = require('./routes/cardRouter');
 const deckRouter = require('./routes/deckRouter');
 const userRouter = require('./routes/userRouter');
 
 //app.use(authenticationRouter);
 app.use(characterRouter);
+app.use(cardRouter);
 app.use(deckRouter);
 app.use(userRouter);
 

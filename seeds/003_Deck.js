@@ -4,6 +4,7 @@ exports.seed = function(knex, Promise) {
     .then(() => {
       return knex('Deck').insert([
         {
+          id: 1,
           name: 'StarterDeck',
           wins: 5,
           losses: 6,

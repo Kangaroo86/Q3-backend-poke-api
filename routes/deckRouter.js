@@ -3,9 +3,29 @@ const router = express.Router();
 const knex = require('../knex');
 
 router.get('/decks', (request, response, next) => {
-  knex('Deck')
-    .orderBy('name', 'asc')
+  //knex('Deck');
+  knex
+    .from('Deck')
+    .innerJoin('Card', 'Deck.id', 'Card.deckId')
+    .innerJoin('Character', 'Card.characterId', 'Character.id')
+    .returning('*')
+    // .first()
+    //.orderBy('name', 'asc')
     .then(deck => {
+      console.log('this is deck----', deck);
+      let hardcodeName = 'HardCoded';
+      let newObj = {
+        deckId: '',
+        deckName: '',
+        wins: '',
+        losses: '',
+        pokeObj: []
+      };
+      deck.forEach(data => {
+        (newObj.deckId =
+          data.id), (newObj.deckName = hardcodeName), (newObj.wins = data.wins);
+      });
+      console.log('this is result----', newObj);
       response.json(deck);
     })
     .catch(err => {
