@@ -14,6 +14,7 @@ router.get('/decks', (request, response, next) => {
     .then(deck => {
       console.log('this is deck----', deck);
       let hardcodeName = 'HardCoded';
+
       let newObj = {
         deckId: '',
         deckName: '',
@@ -22,11 +23,14 @@ router.get('/decks', (request, response, next) => {
         pokeObj: []
       };
       deck.forEach(data => {
-        (newObj.deckId =
-          data.id), (newObj.deckName = hardcodeName), (newObj.wins = data.wins);
+        newObj.deckId = data.id;
+        newObj.deckName = hardcodeName;
+        newObj.wins = data.wins;
+        newObj.losses = data.losses;
+        newObj.pokeObj.push({ name: data.name, pokemonId: data.pokemonId });
       });
       console.log('this is result----', newObj);
-      response.json(deck);
+      return response.json(newObj);
     })
     .catch(err => {
       next(err);
