@@ -16,6 +16,27 @@ exports.seed = function(knex, Promise) {
           wins: 7,
           losses: 1,
           userId: 2
+        },
+        {
+          id: 3,
+          deckname: 'MyEx_Deck',
+          wins: 2,
+          losses: 9,
+          userId: 3
+        },
+        {
+          id: 4,
+          deckname: 'G60_Deck',
+          wins: 10,
+          losses: 44,
+          userId: 4
+        },
+        {
+          id: 5,
+          deckname: 'frontEnd_4_life',
+          wins: 10,
+          losses: 3,
+          userId: 5
         }
       ]);
     })
