@@ -17,7 +17,7 @@ describe(
         .get('/decks')
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
-        .expect(200, { name: 'Starter Deck', wins: 67, losses: 22 });
+        .expect(200, { deckname: 'Starter Deck', wins: 67, losses: 22 });
       done();
     });
     //
@@ -27,7 +27,7 @@ describe(
       request(server)
         .get('/decks/:id')
         .set('Accept', 'application/json')
-        .expect(200, [{ name: 'Starter Deck', wins: 67, losses: 22 }]);
+        .expect(200, [{ deckname: 'Starter Deck', wins: 67, losses: 22 }]);
       done();
     });
     //
@@ -37,10 +37,10 @@ describe(
       request(server)
         .patch('/users/1')
         .set('Accept', 'application/json')
-        .send({ name: 'Cang' })
+        .send({ deckname: 'Cang' })
         .expect('Content-Type', /json/)
         .expect(200, {
-          name: 'Cang'
+          deckname: 'Cang'
         })
         .expect('Content-Type', /json/);
       done();
@@ -53,7 +53,7 @@ describe(
         .post('/decks')
         .set('Accept', 'application/json')
         .set('Content-Type', 'application/json')
-        .send({ name: 'Cang', wins: 4, losses: 3, userId: 1 })
+        .send({ deckname: 'Cang', wins: 4, losses: 3, userId: 1 })
         .expect(200, { id: 2, name: 'Cang', wins: 4, losses: 3, userId: 1 })
         .expect('Content-Type', /json/);
       done();

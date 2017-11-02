@@ -1,7 +1,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable('Deck', table => {
     table.increments('id');
-    table.string('name').notNullable();
+    table.string('deckname').notNullable();
     table.integer('wins').notNullable().defaultTo(0);
     table.integer('losses').notNullable().defaultTo(0);
     table

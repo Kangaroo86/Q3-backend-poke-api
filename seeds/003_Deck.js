@@ -5,10 +5,17 @@ exports.seed = function(knex, Promise) {
       return knex('Deck').insert([
         {
           id: 1,
-          name: 'StarterDeck',
+          deckname: 'StarterDeck',
           wins: 5,
           losses: 6,
           userId: 1
+        },
+        {
+          id: 2,
+          deckname: 'WaterDeck',
+          wins: 7,
+          losses: 1,
+          userId: 2
         }
       ]);
     })

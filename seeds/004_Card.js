@@ -18,6 +18,18 @@ exports.seed = function(knex, Promise) {
         {
           deckId: 1,
           characterId: 14
+        },
+        {
+          deckId: 2,
+          characterId: 4
+        },
+        {
+          deckId: 2,
+          characterId: 10
+        },
+        {
+          deckId: 2,
+          characterId: 15
         }
       ]);
     })

@@ -3,35 +3,51 @@ const router = express.Router();
 const knex = require('../knex');
 
 router.get('/decks', (request, response, next) => {
-  //knex('Deck');
-  knex
-    .from('Deck')
-    .innerJoin('Card', 'Deck.id', 'Card.deckId')
-    .innerJoin('Character', 'Card.characterId', 'Character.id')
-    .returning('*')
-    // .first()
-    //.orderBy('name', 'asc')
-    .then(deck => {
-      console.log('this is deck----', deck);
-      let hardcodeName = 'HardCoded';
-
-      let newObj = {
-        deckId: '',
-        deckName: '',
-        wins: '',
-        losses: '',
-        pokeObj: []
-      };
-      deck.forEach(data => {
-        newObj.deckId = data.id;
-        newObj.deckName = hardcodeName;
-        newObj.wins = data.wins;
-        newObj.losses = data.losses;
-        newObj.pokeObj.push({ name: data.name, pokemonId: data.pokemonId });
-      });
-      console.log('this is result----', newObj);
-      return response.json(newObj);
+  const scope = {};
+  knex('Deck')
+    .then(decks => {
+      //console.log('this is the decks----', decks);
+      scope.decks = decks;
+      const promises = decks.map(deck =>
+        knex('Character').whereIn(
+          'id',
+          knex('Card').select('characterId').where({ deckId: deck.id })
+        )
+      );
+      return Promise.all(promises);
     })
+    .then(results => {
+      //console.log('this is the decks----', results);
+      const { decks } = scope;
+      decks.forEach((deck, i) => {
+        deck.cards = results[i];
+      });
+      response.json(decks);
+    })
+    // .innerJoin('Card', 'Deck.id', 'Card.deckId')
+    // .innerJoin('Character', 'Card.characterId', 'Character.id')
+    // .returning('*')
+    // // .first()
+    // //.orderBy('deckname', 'asc')
+    // .then(deck => {
+    //   console.log('this deck----', deck);
+    //   let newObj = {
+    //     deckId: '',
+    //     deckName: '',
+    //     wins: '',
+    //     losses: '',
+    //     pokeObj: []
+    //   };
+    //   deck.forEach(data => {
+    //     newObj.deckId = data.id;
+    //     newObj.deckName = data.deckname;
+    //     newObj.wins = data.wins;
+    //     newObj.losses = data.losses;
+    //     newObj.pokeObj.push({ name: data.name, pokemonId: data.pokemonId });
+    //   });
+    //   //console.log('this OBJ--------', newObj);
+    //   return response.json(newObj);
+    // })
     .catch(err => {
       next(err);
     });
@@ -59,12 +75,12 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
 
 router.post('/decks', (request, response, next) => {
   let attributes = {
-    name: request.body.name,
+    deckname: request.body.deckname,
     losses: request.body.losses,
     wins: request.body.wins,
     userId: request.body.userId
   };
-  if (!request.body.name) {
+  if (!request.body.deckname) {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
@@ -78,7 +94,7 @@ router.post('/decks', (request, response, next) => {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
-      .send('Genre name must not be blank');
+      .send('Genre deckname must not be blank');
   } else {
     knex('Deck')
       .insert(attributes, '*')

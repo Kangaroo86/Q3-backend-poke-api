@@ -8,6 +8,12 @@ exports.seed = function(knex, Promise) {
           name: 'Cang',
           email: 'Cang.b.le@gmail.com',
           hashedPassword: 'supersecret'
+        },
+        {
+          id: 2,
+          name: 'Leann',
+          email: 'Leann@gmail.com',
+          hashedPassword: 'supersecret'
         }
       ]);
     })
