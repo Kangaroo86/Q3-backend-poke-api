@@ -32,12 +32,6 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
   if (someId < 0 || someId > 100 || isNaN(someId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
   } else {
-    // knex('Deck').where('id', request.params.id).first().then(deck => {
-    //   if (!deck) {
-    //     return next();
-    //   }
-    //   response.json(deck);
-    // });
     const scope = {};
     knex('Deck')
       .then(decks => {
@@ -84,13 +78,13 @@ router.post('/decks', (request, response, next) => {
         .then(([deck]) => {
           scope.deck = deck;
           const pokemonIds = request.body.pokemonIds;
-          console.log('**** pokemonIds', pokemonIds);
+          //console.log('**** pokemonIds', pokemonIds);
           return knex('Character')
             .transacting(trx)
             .whereIn('pokemonId', pokemonIds);
         })
         .then(characters => {
-          console.log('characters ----', characters);
+          //console.log('characters ----', characters);
           return knex('Card').transacting(trx).insert(
             characters.map(character => ({
               deckId: scope.deck.id,
@@ -101,7 +95,7 @@ router.post('/decks', (request, response, next) => {
         })
         .then(cards => {
           trx.commit();
-          console.log(cards);
+          //console.log(cards);
           const { deck } = scope;
           deck.cards = cards;
           response.json(deck);
@@ -111,13 +105,6 @@ router.post('/decks', (request, response, next) => {
           trx.rollback();
           next(err);
         });
-
-      // begin another insert knex statement
-      // knex('card')
-      // check what is your req.body
-      // if you have an array of characters
-      // iterate and insert for each of those characters
-      // response.json(deck);
     });
   }
 });
