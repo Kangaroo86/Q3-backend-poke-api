@@ -64,38 +64,52 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
 });
 
 router.post('/decks', (request, response, next) => {
-  if (!request.body.deckname) {
+  if (!request.body.deckName) {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
       .send('deck name must not be blank');
   } else {
+    const scope = {};
     return knex.transaction(trx => {
       return knex('Deck')
         .transacting(trx)
         .insert(
           {
-            deckname: request.body.deckname,
+            deckname: request.body.deckName,
             userId: request.body.userId
           },
           '*'
         )
         .then(([deck]) => {
-          console.log('this is deck ----', deck.id);
-          return knex('Card')
+          scope.deck = deck;
+          const pokemonIds = request.body.pokemonIds;
+          console.log('**** pokemonIds', pokemonIds);
+          return knex('Character')
             .transacting(trx)
-            .insert(
-              {
-                deckId: deck.id,
-                characterId: request.body.characterId
-              },
-              '*'
-            )
-            .then(trx.commit)
-            .catch(trx.rollback);
+            .whereIn('pokemonId', pokemonIds);
         })
-        .then(result => {
-          console.log('result----', result);
+        .then(characters => {
+          console.log('characters ----', characters);
+          return knex('Card').transacting(trx).insert(
+            characters.map(character => ({
+              deckId: scope.deck.id,
+              characterId: character.id
+            })),
+            '*'
+          );
+        })
+        .then(cards => {
+          trx.commit();
+          console.log(cards);
+          const { deck } = scope;
+          deck.cards = cards;
+          response.json(deck);
+          return;
+        })
+        .catch(err => {
+          trx.rollback();
+          next(err);
         });
 
       // begin another insert knex statement
