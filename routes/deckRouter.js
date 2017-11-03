@@ -69,33 +69,42 @@ router.post('/decks', (request, response, next) => {
       .set('Content-Type', 'text/plain')
       .status(400)
       .send('deck name must not be blank');
-  } else if (!request.body.losses) {
-    response
-      .set('Content-Type', 'text/plain')
-      .status(400)
-      .send('loses counter must not be blank');
-  } else if (!request.body.wins) {
-    response
-      .set('Content-Type', 'text/plain')
-      .status(400)
-      .send('wins counter must not be blank');
   } else {
-    knex('Deck')
-      .insert(
-        {
-          deckname: request.body.deckname,
-          cards: request.body.cards,
-          userId: request.body.userId
-        },
-        '*'
-      )
-      .then(deck => {
-        response.json(deck);
-      })
-      .catch(err => {
-        next(err);
-      });
-    knex('Card').insert({});
+    return knex.transaction(trx => {
+      return knex('Deck')
+        .transacting(trx)
+        .insert(
+          {
+            deckname: request.body.deckname,
+            userId: request.body.userId
+          },
+          '*'
+        )
+        .then(([deck]) => {
+          console.log('this is deck ----', deck.id);
+          return knex('Card')
+            .transacting(trx)
+            .insert(
+              {
+                deckId: deck.id,
+                characterId: request.body.characterId
+              },
+              '*'
+            )
+            .then(trx.commit)
+            .catch(trx.rollback);
+        })
+        .then(result => {
+          console.log('result----', result);
+        });
+
+      // begin another insert knex statement
+      // knex('card')
+      // check what is your req.body
+      // if you have an array of characters
+      // iterate and insert for each of those characters
+      // response.json(deck);
+    });
   }
 });
 
