@@ -44,14 +44,14 @@ const characterRouter = require('./routes/characterRouter');
 const cardRouter = require('./routes/cardRouter');
 const deckRouter = require('./routes/deckRouter');
 const userRouter = require('./routes/userRouter');
-// const signInRouter = require('./routes/signInRouter');
+const signInRouter = require('./routes/signInRouter');
 
 //app.use(authenticationRouter);
 app.use(characterRouter);
 app.use(cardRouter);
 app.use(deckRouter);
 app.use(userRouter);
-// app.use(signInRouter);
+app.use(signInRouter);
 
 app.use((request, response) => {
   response.sendStatus(404);

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const env = require('./../env');
 var jwt = require('jsonwebtoken');
 const { JWT_KEY } = require('../env');
@@ -9,6 +9,7 @@ const { JWT_KEY } = require('../env');
 //const signJWT = promisify(jwt.sign);
 
 router.get('/token', (request, response, next) => {
+  //console.log('what JWT_KEY=========', env.JWT_KEY);
   if (request.cookie.token) {
     jwt.verify(request.cookie.token, env.JWT_KEY, (err, response) => {
       if (response) response.status(200).json(true);
@@ -22,6 +23,7 @@ router.get('/token', (request, response, next) => {
 });
 
 router.post('/token', (request, response, next) => {
+  //console.log('what are my request------', request.body);
   if (!request.body.name) {
     response.set('Content-Type', 'text/plain');
     response.status(400).send('Name must not be blank');
@@ -36,13 +38,20 @@ router.post('/token', (request, response, next) => {
   return knex('User')
     .where('name', request.body.name)
     .then(record => {
+      console.log('my body-----', request.body);
+      console.log('from API----', record);
+      console.log('compare bodypassword++++++++', request.body.password);
+      console.log('compare hassedpassword++++++++', record[0].hashedPassword);
+      console.log(
+        'comparing password--------',
+        request.body.password === record[0].hashedPassword
+      );
       return bcrypt
         .compare(request.body.password, record[0].hashedPassword)
         .then(response => {
           if (!response) {
             response.set('Content-Type', 'text/plain');
-
-            response.status(400).send('Bad email or password');
+            response.status(400).send('Bad name or password');
             return;
           } else {
             let token = jwt.sign(
