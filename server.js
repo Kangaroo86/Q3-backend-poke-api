@@ -11,6 +11,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 //const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const { JWT_KEY } = require('./env');
+const jwt = require('express-jwt');
 
 switch (process.env.NODE_ENV) {
   case 'development':
@@ -39,14 +41,19 @@ app.use(express.static(path.join('public')));
 //   response.sendStatus(406);
 // });
 
-//const authenticationRouter = require('./routes/authenticationRouter');
 const characterRouter = require('./routes/characterRouter');
 const cardRouter = require('./routes/cardRouter');
 const deckRouter = require('./routes/deckRouter');
 const userRouter = require('./routes/userRouter');
 const signInRouter = require('./routes/signInRouter');
 
-//app.use(authenticationRouter);
+app.use(
+  jwt({
+    secret: JWT_KEY,
+    requestProperty: 'jwt.payload',
+    credentialsRequired: false
+  })
+);
 app.use(characterRouter);
 app.use(cardRouter);
 app.use(deckRouter);

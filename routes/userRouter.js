@@ -57,7 +57,7 @@ router.get('/users', (request, response, next) => {
   knex('User')
     .select('*')
     .then(result => {
-      delete result.body.hashedPassword;
+      result.map(arrayObj => delete arrayObj.hashedPassword);
       response.json(result);
     })
     .catch(err => {
@@ -66,11 +66,15 @@ router.get('/users', (request, response, next) => {
 });
 
 router.get('/users/:id(\\d+)', (request, response, next) => {
-  knex('User').where('id', request.params.id).then(result => {
-    response.json(result).catch(err => {
+  knex('User')
+    .where('id', request.params.id)
+    .then(result => {
+      result.map(arrayObj => delete arrayObj.hashedPassword);
+      response.json(result);
+    })
+    .catch(err => {
       next(err);
     });
-  });
 });
 
 router.patch('/users/:id(\\d+)', (request, response, next) => {
