@@ -4,11 +4,14 @@ const knex = require('../knex');
 const { JWT_KEY } = require('../env');
 const jwt = require('jsonwebtoken');
 
-router.get('/decks', (request, response, next) => {
+router.get('/decks/', (request, response, next) => {
+  console.log('This is request ----------', request);
+  console.log('This is request headers----------', request.headers);
+  console.log('This is request jwt----------', request.jwt);
   const userId = request.jwt ? request.jwt.payload.sub : null;
 
   //console.log('what is this request:::--------', request);
-  //console.log('what is this request.jwt--------', request.jwt);
+  //console.log('what is this request.jwt--------', userId);
   // TODO: if no userID (i.e. === null), then return emptry array;
 
   const scope = {};
@@ -38,11 +41,16 @@ router.get('/decks', (request, response, next) => {
 
 router.get('/decks/:id(\\d+)', (request, response, next) => {
   const userId = request.jwt ? request.jwt.payload.sub : null;
+  console.log(
+    'This is request ----------',
+    userId === Number(request.params.id)
+  );
+  console.log('This is request params ----------', request.params.id);
 
   //const jwtVerify = jwt.verify();
 
-  let someId = parseInt(request.params.id);
-  if (someId < 0 || someId > 100 || isNaN(someId) === true) {
+  let paramsId = Number(request.params.id);
+  if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
   } else {
     const scope = {};
