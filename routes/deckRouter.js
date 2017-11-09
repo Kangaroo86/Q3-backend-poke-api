@@ -5,13 +5,13 @@ const { JWT_KEY } = require('../env');
 const jwt = require('jsonwebtoken');
 
 router.get('/decks/', (request, response, next) => {
-  console.log('This is request ----------', request);
-  console.log('This is request headers----------', request.headers);
-  console.log('This is request jwt----------', request.jwt);
   const userId = request.jwt ? request.jwt.payload.sub : null;
+  // let paramsId = Number(request.params.id);
 
-  //console.log('what is this request:::--------', request);
-  //console.log('what is this request.jwt--------', userId);
+  // console.log('userId------', userId);
+  // console.log('paramsId------', paramsId); //null why?
+  // console.log('does this equal', paramsId === userId); //false cause paramsId is null
+
   // TODO: if no userID (i.e. === null), then return emptry array;
 
   const scope = {};
@@ -28,7 +28,9 @@ router.get('/decks/', (request, response, next) => {
       return Promise.all(promises);
     })
     .then(results => {
+      //console.log('results-----', results);
       const { decks } = scope;
+      //console.log('decks----', decks);
       decks.forEach((deck, i) => {
         deck.cards = results[i];
       });
@@ -41,22 +43,19 @@ router.get('/decks/', (request, response, next) => {
 
 router.get('/decks/:id(\\d+)', (request, response, next) => {
   const userId = request.jwt ? request.jwt.payload.sub : null;
-  console.log(
-    'This is request ----------',
-    userId === Number(request.params.id)
-  );
-  console.log('This is request params ----------', request.params.id);
-
-  //const jwtVerify = jwt.verify();
-
   let paramsId = Number(request.params.id);
+
+  console.log('userId+++++++++', userId);
+  console.log('params+++++++++', paramsId);
+
   if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
-  } else {
+  } else if (userId === paramsId) {
     const scope = {};
     knex('Deck')
       .where({ userId })
       .then(decks => {
+        console.log('what is my decks--------', decks);
         scope.decks = decks;
         const promises = decks.map(deck =>
           knex('Character').whereIn(
@@ -64,6 +63,7 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
             knex('Card').select('characterId').where({ deckId: deck.id })
           )
         );
+        //console.log('scope----', scope);
         return Promise.all(promises);
       })
       .then(results => {
@@ -71,10 +71,13 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
         decks.forEach((deck, i) => {
           deck.cards = results[i];
         });
-        let data = decks.filter(result => {
-          return result.id === Number(request.params.id);
-        });
-        response.json(data);
+        //console.log('results decks----', decks);
+        // let data = decks.filter(result => {
+        //   console.log('my result----', result);
+        //   return result.userId === Number(request.params.id);
+        // });
+        //console.log('my data----', data);
+        response.json(decks);
       });
   }
 });
@@ -82,6 +85,12 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
 //you can't test this in a terminal, whereas front-end will succee
 router.post('/decks', (request, response, next) => {
   const userId = request.jwt ? request.jwt.payload.sub : null;
+  let paramsId = Number(request.params.id);
+
+  console.log('userId------', userId);
+  console.log('paramsId------', paramsId); //null why?
+  console.log('does this equal', paramsId === userId); //false cause paramsId is null
+
   if (!request.body.deckName) {
     response
       .set('Content-Type', 'text/plain')
@@ -167,7 +176,10 @@ router.delete('/decks/:id(\\d+)', (request, response, next) => {
 //   next(Boom.methodNotAllowed(null, null, ['OPTIONS', 'GET', 'POST']))
 // );
 //
-// router.get('/user/:id(\\d+)/deck', deckController.findByDeckId);
+router.get('/users/:id(\\d+)/decks', (request, response, next) => {
+  // give :id in URL
+  // you can run SELECT * FROM Deck WHERE userId = :id
+});
 // router.all('/user/:id(\\d+)/deck', (request, response, next) =>
 //   next(Boom.methodNotAllowed(null, null, ['OPTIONS', 'GET']))
 // );
