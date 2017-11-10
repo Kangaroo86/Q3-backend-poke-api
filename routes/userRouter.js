@@ -54,9 +54,11 @@ router.post('/users', (request, response, next) => {
 });
 
 router.get('/users', (request, response, next) => {
+  console.log('request---', request);
   knex('User')
     .select('*')
     .then(result => {
+      //console.log('my result---', result);
       result.map(arrayObj => delete arrayObj.hashedPassword);
       response.json(result);
     })
