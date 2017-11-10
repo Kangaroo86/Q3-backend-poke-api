@@ -11,7 +11,7 @@ router.post('/users', (request, response, next) => {
     response
       .set('Content-Type', 'text/plain')
       .status(400)
-      .send('Password must be at least 8 characters long');
+      .send('Password Needed');
   } else if (!request.body.email) {
     response
       .set('Content-Type', 'text/plain')
