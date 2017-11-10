@@ -54,7 +54,6 @@ router.post('/users', (request, response, next) => {
 });
 
 router.get('/users', (request, response, next) => {
-  console.log('request---', request);
   knex('User')
     .select('*')
     .then(result => {
