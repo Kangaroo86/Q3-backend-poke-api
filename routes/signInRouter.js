@@ -3,11 +3,7 @@ const router = express.Router();
 const knex = require('../knex');
 const bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
-
-// TODO figure out which is the right import
-//const env = require('../env');
 const { JWT_KEY } = require('../env');
-
 const { promisify } = require('util');
 const signJWT = promisify(jwt.sign);
 
@@ -34,7 +30,6 @@ router.post('/token', (request, response, next) => {
     .then(token => {
       delete scope.user.hashedPassword;
       scope.user.token = token;
-
       response.send(scope.user);
     })
     .catch(err => {

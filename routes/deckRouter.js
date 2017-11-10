@@ -4,19 +4,13 @@ const knex = require('../knex');
 const { JWT_KEY } = require('../env');
 const jwt = require('jsonwebtoken');
 
+/**This just get all user's deck**/
 router.get('/decks/', (request, response, next) => {
-  const userId = request.jwt ? request.jwt.payload.sub : null;
-  // let paramsId = Number(request.params.id);
-
-  // console.log('userId------', userId);
-  // console.log('paramsId------', paramsId); //null why?
-  // console.log('does this equal', paramsId === userId); //false cause paramsId is null
-
-  // TODO: if no userID (i.e. === null), then return emptry array;
-
+  //const userId = request.jwt ? request.jwt.payload.sub : null;
+  //let paramsId = Number(request.params.id);
   const scope = {};
   knex('Deck')
-    .where({ userId })
+    //.where({ userId })
     .then(decks => {
       scope.decks = decks;
       const promises = decks.map(deck =>
@@ -28,9 +22,7 @@ router.get('/decks/', (request, response, next) => {
       return Promise.all(promises);
     })
     .then(results => {
-      //console.log('results-----', results);
       const { decks } = scope;
-      //console.log('decks----', decks);
       decks.forEach((deck, i) => {
         deck.cards = results[i];
       });
@@ -41,12 +33,10 @@ router.get('/decks/', (request, response, next) => {
     });
 });
 
+/**NOTES :id is NOT the deck's id. It is the user's id. Refactor in the future???**/
 router.get('/decks/:id(\\d+)', (request, response, next) => {
   const userId = request.jwt ? request.jwt.payload.sub : null;
   let paramsId = Number(request.params.id);
-
-  console.log('userId+++++++++', userId);
-  console.log('params+++++++++', paramsId);
 
   if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
@@ -55,7 +45,6 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
     knex('Deck')
       .where({ userId })
       .then(decks => {
-        console.log('what is my decks--------', decks);
         scope.decks = decks;
         const promises = decks.map(deck =>
           knex('Character').whereIn(
@@ -63,7 +52,6 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
             knex('Card').select('characterId').where({ deckId: deck.id })
           )
         );
-        //console.log('scope----', scope);
         return Promise.all(promises);
       })
       .then(results => {
@@ -71,12 +59,6 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
         decks.forEach((deck, i) => {
           deck.cards = results[i];
         });
-        //console.log('results decks----', decks);
-        // let data = decks.filter(result => {
-        //   console.log('my result----', result);
-        //   return result.userId === Number(request.params.id);
-        // });
-        //console.log('my data----', data);
         response.json(decks);
       });
   }
@@ -85,11 +67,11 @@ router.get('/decks/:id(\\d+)', (request, response, next) => {
 //you can't test this in a terminal, whereas front-end will succee
 router.post('/decks', (request, response, next) => {
   const userId = request.jwt ? request.jwt.payload.sub : null;
-  let paramsId = Number(request.params.id);
+  //let paramsId = Number(request.params.id);
 
-  console.log('userId------', userId);
-  console.log('paramsId------', paramsId); //null why?
-  console.log('does this equal', paramsId === userId); //false cause paramsId is null
+  //console.log('userId------', userId);
+  //console.log('paramsId------', paramsId); //null why?
+  //console.log('does this equal', paramsId === userId); //false cause paramsId is null
 
   if (!request.body.deckName) {
     response
@@ -100,6 +82,7 @@ router.post('/decks', (request, response, next) => {
     const scope = {};
     return knex.transaction(trx => {
       return knex('Deck')
+        .where({ userId })
         .transacting(trx)
         .insert(
           {
@@ -111,13 +94,11 @@ router.post('/decks', (request, response, next) => {
         .then(([deck]) => {
           scope.deck = deck;
           const pokemonIds = request.body.pokemonIds;
-          //console.log('**** pokemonIds', pokemonIds);
           return knex('Character')
             .transacting(trx)
             .whereIn('pokemonId', pokemonIds);
         })
         .then(characters => {
-          //console.log('characters ----', characters);
           return knex('Card').transacting(trx).insert(
             characters.map(character => ({
               deckId: scope.deck.id,
@@ -128,7 +109,6 @@ router.post('/decks', (request, response, next) => {
         })
         .then(cards => {
           trx.commit();
-          //console.log(cards);
           const { deck } = scope;
           deck.cards = cards;
           response.json(deck);
@@ -176,10 +156,10 @@ router.delete('/decks/:id(\\d+)', (request, response, next) => {
 //   next(Boom.methodNotAllowed(null, null, ['OPTIONS', 'GET', 'POST']))
 // );
 //
-router.get('/users/:id(\\d+)/decks', (request, response, next) => {
-  // give :id in URL
-  // you can run SELECT * FROM Deck WHERE userId = :id
-});
+//router.get('/users/:id(\\d+)/decks', (request, response, next) => {
+// give :id in URL
+// you can run SELECT * FROM Deck WHERE userId = :id
+//});
 // router.all('/user/:id(\\d+)/deck', (request, response, next) =>
 //   next(Boom.methodNotAllowed(null, null, ['OPTIONS', 'GET']))
 // );
