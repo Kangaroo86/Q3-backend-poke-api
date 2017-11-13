@@ -12,18 +12,23 @@ router.post('/token', (request, response, next) => {
   const password = request.body.password;
 
   return knex('User')
-    .orderBy('name')
     .where({ name: request.body.name })
     .then(([user]) => {
       if (!user) {
-        throw new Error('INVALID_CREDENTAILS');
+        response
+          .set('Content-Type', 'text/plain')
+          .status(400)
+          .send('Bad request');
       }
       scope.user = user;
       return bcrypt.compare(password, user.hashedPassword);
     })
     .then(result => {
-      if (result !== true) {
-        throw new Error('INVALID_CREDENTAILS');
+      if (!result) {
+        response
+          .set('Content-Type', 'text/plain')
+          .status(400)
+          .send('Bad request');
       }
       return signJWT({ sub: scope.user.id }, JWT_KEY);
     })

@@ -73,7 +73,7 @@ app.use((error, request, response, next) => {
     return;
   }
 
-  console.error(error.stack); // eslint-disable-line no-console
+  console.error('Error stack', error.stack); // eslint-disable-line no-console
   response.sendStatus(500);
 });
 

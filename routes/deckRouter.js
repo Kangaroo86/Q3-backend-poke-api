@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const knex = require('../knex');
-const { JWT_KEY } = require('../env');
-const jwt = require('jsonwebtoken');
 
 /**This just get all user's deck**/
 router.get('/decks/', (request, response, next) => {

@@ -6,52 +6,90 @@ const bcrypt = require('bcryptjs');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
 
-router.post('/users', (request, response, next) => {
+const checkForEmptyFieldsHandler = (request, response, next) => {
   if (!request.body.password) {
-    response
-      .set('Content-Type', 'text/plain')
-      .status(400)
-      .send('Password Needed');
+    next({
+      output: { statusCode: 400 },
+      message: 'Password needed'
+    });
   } else if (!request.body.email) {
-    response
-      .set('Content-Type', 'text/plain')
-      .status(400)
-      .send('Email must not be blank');
+    next({
+      output: { statusCode: 400 },
+      message: 'Email must not be blank'
+    });
   } else {
-    bcrypt
-      .hash(request.body.password, 12)
-      .then(hash_password => {
-        return knex('User').insert(
-          {
-            name: request.body.name,
-            email: request.body.email,
-            hashedPassword: hash_password
-          },
-          '*'
-        );
-      })
-      .then(users => {
-        //console.log('this is users-----', users);
-        const user = users[0];
-        let token = jwt.sign(
-          {
-            id: user.id,
-            name: user.name,
-            email: user.email
-          },
-          JWTenv.JWT_KEY
-        );
-        response.status(200).cookie('token', token, { httpOnly: true }).json({
+    next();
+  }
+};
+
+const checkDuplicateUsernameHandler = (request, response, next) => {
+  knex('User').where('name', request.body.name).then(result => {
+    console.log('POST /users: Checking if name exists: ', request.body.name);
+    if (result.length > 0) {
+      console.log('Username already exists, result: ', result);
+      return next({
+        output: { statusCode: 400 },
+        message: 'Username already exists'
+      });
+    }
+    next();
+  });
+};
+
+const checkDuplicateEmailHandler = (request, response, next) => {
+  console.log('POST /users: Checking if email exists');
+  knex('User').where('email', request.body.email).then(result => {
+    if (result.length > 0) {
+      return next({
+        output: { statusCode: 400 },
+        message: 'Email already exists'
+      });
+    }
+    // No email already exists -- next, create the user.
+    next();
+  });
+};
+
+const createUserHandler = (request, response, next) => {
+  console.log('This will create a user');
+  bcrypt
+    .hash(request.body.password, 12)
+    .then(hash_password => {
+      return knex('User').insert(
+        {
+          name: request.body.name,
+          email: request.body.email,
+          hashedPassword: hash_password
+        },
+        '*'
+      );
+    })
+    .then(users => {
+      //console.log('this is users-----', users);
+      const user = users[0];
+      let token = jwt.sign(
+        {
           id: user.id,
           name: user.name,
           email: user.email
-        });
-      })
-      .catch(() =>
-        response.status(400).type('text/plain').send('Email already exists')
+        },
+        JWTenv.JWT_KEY
       );
-  }
-});
+      response.status(200).cookie('token', token, { httpOnly: true }).json({
+        id: user.id,
+        name: user.name,
+        email: user.email
+      });
+    });
+};
+
+router.post(
+  '/users',
+  checkForEmptyFieldsHandler,
+  checkDuplicateUsernameHandler,
+  checkDuplicateEmailHandler,
+  createUserHandler
+);
 
 router.get('/users', (request, response, next) => {
   knex('User')
