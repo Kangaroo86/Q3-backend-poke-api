@@ -45,7 +45,7 @@ const characterRouter = require('./routes/characterRouter');
 const cardRouter = require('./routes/cardRouter');
 const deckRouter = require('./routes/deckRouter');
 //const userRouter = require('./routes/userRouter');
-const userRouter = require('./instances/userRouter');
+const entityRouter = require('./instances/entityRouter');
 const signInRouter = require('./routes/signInRouter');
 
 app.use(
@@ -58,7 +58,7 @@ app.use(
 app.use(characterRouter);
 app.use(cardRouter);
 app.use(deckRouter);
-app.use(userRouter);
+app.use(entityRouter);
 app.use(signInRouter);
 
 app.use((request, response) => {

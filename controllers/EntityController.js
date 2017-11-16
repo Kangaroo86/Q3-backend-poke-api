@@ -2,11 +2,58 @@ const knex = require('../knex');
 const bcrypt = require('bcryptjs');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
+const { JWT_KEY } = require('../env');
+const { promisify } = require('util');
+const signJWT = promisify(jwt.sign);
 
-class UserController {
+class EntityController {
   constructor({ userTable }) {
     this._user = knex(userTable);
-    this._bindMethods(['getAllUser', 'getUserById', 'updateUser', 'addUser']);
+    this._bindMethods([
+      'getAllUser',
+      'getUserById',
+      'updateUser',
+      'addUser',
+      'createToken'
+    ]);
+  }
+
+  //***********************************//
+  //************Create Token***********//
+  //***********************************//
+  createToken(request, response, next) {
+    const scope = {};
+    const password = request.body.password;
+
+    this._user
+      .where({ name: request.body.name })
+      .then(([user]) => {
+        if (!user) {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(400)
+            .send('Bad request');
+        }
+        scope.user = user;
+        return bcrypt.compare(password, user.hashedPassword);
+      })
+      .then(result => {
+        if (!result) {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(400)
+            .send('Bad request');
+        }
+        return signJWT({ sub: scope.user.id }, JWT_KEY);
+      })
+      .then(token => {
+        delete scope.user.hashedPassword;
+        scope.user.token = token;
+        response.send(scope.user);
+      })
+      .catch(err => {
+        next(err);
+      });
   }
 
   //***********************************//
@@ -16,7 +63,7 @@ class UserController {
     this._user
       .select('*')
       .then(result => {
-        result.map(arrayObj => delete arrayObj.hashedPassword);
+        result.forEach(arrayObj => delete arrayObj.hashedPassword);
         response.json(result);
       })
       .catch(err => {
@@ -148,4 +195,4 @@ class UserController {
   }
 }
 
-module.exports = UserController;
+module.exports = EntityController;
