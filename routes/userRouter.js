@@ -95,7 +95,6 @@ router.get('/users', (request, response, next) => {
   knex('User')
     .select('*')
     .then(result => {
-      //console.log('my result---', result);
       result.map(arrayObj => delete arrayObj.hashedPassword);
       response.json(result);
     })
@@ -116,6 +115,8 @@ router.get('/users/:id(\\d+)', (request, response, next) => {
     });
 });
 
+//will not update in the database..why?
+//http PATCH localhost:8000/users/23 name="leannlee" email="lean007" password="newpass"
 router.patch('/users/:id(\\d+)', (request, response, next) => {
   let attributes = {
     name: request.body.name,
