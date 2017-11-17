@@ -25,9 +25,10 @@ class EntityController {
   createToken(request, response, next) {
     const scope = {};
     const password = request.body.password;
+    const name = request.body.name;
 
     this._knex(this._user)
-      .where({ name: request.body.name })
+      .where({ name })
       .then(([user]) => {
         if (!user) {
           throw new Error('HTTP_400');
@@ -36,9 +37,6 @@ class EntityController {
         return bcrypt.compare(password, user.hashedPassword);
       })
       .then(result => {
-        if (!result) {
-          throw new Error('HTTP_400');
-        }
         return signJWT({ sub: scope.user.id }, JWT_KEY);
       })
       .then(token => {

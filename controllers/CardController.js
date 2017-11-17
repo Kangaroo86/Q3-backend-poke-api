@@ -33,30 +33,30 @@ class CardController {
   //***********************************//
   //************Delete Decks***********//
   //***********************************//
-  deleteCard(request, response, next) {
-    let card;
-    let someId = parseInt(request.params.id);
-    console.log('this is ID--------', someId);
-    if (someId > 100 || someId < 0 || isNaN(someId) === true) {
-      response.set('Content-Type', 'text/plain').status(404).send('Not Found');
-    } else {
-      this._knex(this._card)
-        .where('id', request.params.id)
-        .first()
-        .then(row => {
-          if (!row) {
-            return next();
-          }
-          card = row;
-          return this._knex(this._card).del().where('id', request.params.id);
-        })
-        .then(() => {
-          delete card.id;
-          response.json;
-        })
-        .catch(err => next(err));
-    }
-  }
+  // deleteCard(request, response, next) {
+  //   let card;
+  //   let someId = parseInt(request.params.id);
+  //   console.log('this is ID--------', someId);
+  //   if (someId > 100 || someId < 0 || isNaN(someId) === true) {
+  //     response.set('Content-Type', 'text/plain').status(404).send('Not Found');
+  //   } else {
+  //     this._knex(this._card)
+  //       .where('id', request.params.id)
+  //       .first()
+  //       .then(row => {
+  //         if (!row) {
+  //           return next();
+  //         }
+  //         card = row;
+  //         return this._knex(this._card).del().where('id', request.params.id);
+  //       })
+  //       .then(() => {
+  //         delete card.id;
+  //         response.json;
+  //       })
+  //       .catch(err => next(err));
+  //   }
+  // }
 
   //****Binding Methods****//
   _bindMethods(methodNames) {
