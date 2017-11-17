@@ -82,7 +82,7 @@ app.use((error, request, response, next) => {
   response.sendStatus(500);
 });
 
-const port = process.env.PORT || 8000;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
   if (process.env.NODE_ENV === 'test') return;
