@@ -1,6 +1,7 @@
 node_modules/
 .env.development
 .env.test
+.env.eb
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
