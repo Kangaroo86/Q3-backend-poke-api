@@ -160,10 +160,6 @@ class DeckController {
     let deck;
     let someId = parseInt(request.params.id);
 
-    console.log('userId---------', userId);
-    console.log('someId---------', someId);
-    console.log('request ++++++++++', request);
-
     if (someId > 100 || someId < 0 || isNaN(someId) === true) {
       throw new Error('HTTP_404');
     } else {
