@@ -99,11 +99,11 @@ class DeckController {
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
-    //let paramsId = Number(request.params.id);
+    let paramsId = Number(request.params.id);
 
-    //console.log('userId------', userId);
-    //console.log('paramsId------', paramsId); //null why?
-    //console.log('does this equal', paramsId === userId); //false cause paramsId is null
+    console.log('userId------', userId);
+    console.log('paramsId------', paramsId); //null why?
+    console.log('does this equal', paramsId === userId); //false cause paramsId is null
 
     if (!request.body.deckName) {
       throw new Error('HTTP_400 deckName is blank');
