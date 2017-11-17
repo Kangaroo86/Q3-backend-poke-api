@@ -6,6 +6,9 @@ class CharacterController {
     this._bindMethods(['getAllCharacters']);
   }
 
+  //***********************************//
+  //**********Get All Character********//
+  //***********************************//
   getAllCharacters(request, response, next) {
     this._character
       .orderBy('id', 'asc')

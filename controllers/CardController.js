@@ -1,13 +1,15 @@
-const knex = require('../knex');
-
 class CardController {
-  constructor({ cardTable }) {
+  constructor({ cardTable }, knex) {
+    this._knex = knex;
     this._card = knex(cardTable);
-    this._bindMethods(['getAllCards', 'createCard']);
+    this._bindMethods(['getAllCards', 'createCard', 'deleteCard']);
   }
 
+  //***********************************//
+  //************Get All Cards**********//
+  //***********************************//
   getAllCards(request, response, next) {
-    this._card
+    this._knex(this._card)
       .select('*')
       .then(card => {
         response.json(card);
@@ -20,7 +22,7 @@ class CardController {
       deckId: request.body.deckId,
       characterId: request.body.characterId
     };
-    this._card
+    this._knex(this._card)
       .insert(attributes, '*')
       .then(card => {
         response.json(card);
@@ -28,13 +30,17 @@ class CardController {
       .catch(err => next(err));
   }
 
+  //***********************************//
+  //************Delete Decks***********//
+  //***********************************//
   deleteCard(request, response, next) {
     let card;
     let someId = parseInt(request.params.id);
+    console.log('this is ID--------', someId);
     if (someId > 100 || someId < 0 || isNaN(someId) === true) {
       response.set('Content-Type', 'text/plain').status(404).send('Not Found');
     } else {
-      this._card
+      this._knex(this._card)
         .where('id', request.params.id)
         .first()
         .then(row => {
@@ -42,7 +48,7 @@ class CardController {
             return next();
           }
           card = row;
-          return knex('Card').del().where('id', request.params.id);
+          return this._knex(this._card).del().where('id', request.params.id);
         })
         .then(() => {
           delete card.id;
