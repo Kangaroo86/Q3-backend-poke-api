@@ -115,6 +115,8 @@ class EntityController {
       throw new Error('HTTP_400 Password Needed');
     } else if (!request.body.email) {
       throw new Error('HTTP_400 Email Needed');
+    } else if (!request.body.name) {
+      throw new Error('HTTP_400 Name Needed');
     } else {
       // Check for duplicate name
       this._knex(this._user).where('name', request.body.name).then(result => {
@@ -168,23 +170,25 @@ class EntityController {
                   .set('Content-Type', 'text/plain')
                   .status(400)
                   .send('Password needed');
-              }
-              if (err.message === 'HTTP_400 Email Needed') {
+              } else if (err.message === 'HTTP_400 Email Needed') {
                 response
                   .set('Content-Type', 'text/plain')
                   .status(400)
                   .send('Email needed');
-              }
-              if (err.message === 'HTTP_400 Duplicate UserName') {
+              } else if (err.message === 'HTTP_400 Name Needed') {
                 response
+                  .set('Content-Type', 'text/plain')
                   .status(400)
-                  .type('text/plain')
+                  .send('Name needed');
+              } else if (err.message === 'HTTP_400 Duplicate UserName') {
+                response
+                  .set('Content-Type', 'text/plain')
+                  .status(400)
                   .send('Username already exists');
-              }
-              if (err.message === 'HTTP_400 Duplicate Email') {
+              } else if (err.message === 'HTTP_400 Duplicate Email') {
                 response
+                  .set('Content-Type', 'text/plain')
                   .status(400)
-                  .type('text/plain')
                   .send('Email already exists');
               } else {
                 next(err);

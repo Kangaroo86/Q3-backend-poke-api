@@ -50,8 +50,7 @@ class DeckController {
     let paramsId = Number(request.params.id);
 
     if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
-      response.set('Content-Type', 'text/plain').status(404).send('Not Found');
-      return;
+      throw new Error('HTTP_405 Not Found');
     }
 
     if (userId !== paramsId) {
@@ -83,7 +82,14 @@ class DeckController {
         response.json(decks);
       })
       .catch(err => {
-        next(err);
+        if (err.message === 'HTTP_405 Not Found') {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(405)
+            .send('Not Found');
+        } else {
+          next(err);
+        }
       });
   }
 
