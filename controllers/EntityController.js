@@ -29,20 +29,14 @@ class EntityController {
       .where({ name: request.body.name })
       .then(([user]) => {
         if (!user) {
-          response
-            .set('Content-Type', 'text/plain')
-            .status(400)
-            .send('Bad request');
+          throw new Error('HTTP_400');
         }
         scope.user = user;
         return bcrypt.compare(password, user.hashedPassword);
       })
       .then(result => {
         if (!result) {
-          response
-            .set('Content-Type', 'text/plain')
-            .status(400)
-            .send('Bad request');
+          throw new Error('HTTP_400');
         }
         return signJWT({ sub: scope.user.id }, JWT_KEY);
       })
@@ -52,6 +46,13 @@ class EntityController {
         response.send(scope.user);
       })
       .catch(err => {
+        if (err.message === 'HTTP_400') {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(400)
+            .send('Bad request');
+          return;
+        }
         next(err);
       });
   }

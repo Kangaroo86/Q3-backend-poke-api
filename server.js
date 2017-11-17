@@ -41,12 +41,16 @@ app.use(express.static(path.join('public')));
 //   response.sendStatus(406);
 // });
 
-const characterRouter = require('./routes/characterRouter');
-const cardRouter = require('./routes/cardRouter');
-const deckRouter = require('./routes/deckRouter');
+// const characterRouter = require('./routes/characterRouter');
+// const cardRouter = require('./routes/cardRouter');
+//const deckRouter = require('./routes/deckRouter');
 //const userRouter = require('./routes/userRouter');
+//const signInRouter = require('./routes/signInRouter');
+
+const characterRouter = require('./instances/characterRouter');
+const cardRouter = require('./instances/cardRouter');
+const deckRouter = require('./instances/deckRouter');
 const entityRouter = require('./instances/entityRouter');
-const signInRouter = require('./routes/signInRouter');
 
 app.use(
   jwt({
@@ -59,7 +63,7 @@ app.use(characterRouter);
 app.use(cardRouter);
 app.use(deckRouter);
 app.use(entityRouter);
-app.use(signInRouter);
+//app.use(signInRouter);
 
 app.use((request, response) => {
   response.sendStatus(404);
