@@ -93,7 +93,7 @@ class DeckController {
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
-    //let paramsId = Number(request.params.id);
+    let paramsId = Number(request.params.id);
 
     //console.log('userId------', userId);
     //console.log('paramsId------', paramsId); //null why?
@@ -155,8 +155,13 @@ class DeckController {
     const userId = request.jwt ? request.jwt.payload.sub : null;
     let deck;
     let someId = parseInt(request.params.id);
+
+    console.log('userId---------', userId);
+    console.log('someId---------', someId);
+    console.log('request ++++++++++', request);
+
     if (someId > 100 || someId < 0 || isNaN(someId) === true) {
-      response.set('Content-Type', 'text/plain').status(404).send('Not Found');
+      throw new Error('HTTP_404');
     } else {
       this._knex(this._deck)
         .where({ userId })
@@ -174,6 +179,13 @@ class DeckController {
           response.json();
         })
         .catch(err => {
+          if (err.message === 'HTTP_404') {
+            response
+              .set('Content-Type', 'text/plain')
+              .status(404)
+              .send('Not Found');
+            return;
+          }
           next(err);
         });
     }

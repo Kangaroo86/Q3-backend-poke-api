@@ -1,8 +1,7 @@
-const knex = require('../knex');
-
 class CharacterController {
-  constructor({ characterTable }) {
-    this._character = knex(characterTable);
+  constructor({ characterTable }, knex) {
+    this._knex = knex;
+    this._character = characterTable;
     this._bindMethods(['getAllCharacters']);
   }
 
@@ -10,13 +9,14 @@ class CharacterController {
   //**********Get All Character********//
   //***********************************//
   getAllCharacters(request, response, next) {
-    this._character
+    this._knex(this._character)
       .orderBy('id', 'asc')
       .then(allCharacter => {
         response.json(allCharacter);
       })
       .catch(err => next(err));
   }
+
   //****Binding Methods****//
   _bindMethods(methodNames) {
     methodNames.forEach(methodName => {

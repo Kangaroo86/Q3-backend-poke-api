@@ -7,8 +7,9 @@ const { promisify } = require('util');
 const signJWT = promisify(jwt.sign);
 
 class EntityController {
-  constructor({ userTable }) {
-    this._user = knex(userTable);
+  constructor({ userTable }, knex) {
+    this._knex = knex;
+    this._user = userTable;
     this._bindMethods([
       'getAllUser',
       'getUserById',
@@ -25,7 +26,7 @@ class EntityController {
     const scope = {};
     const password = request.body.password;
 
-    this._user
+    this._knex(this._user)
       .where({ name: request.body.name })
       .then(([user]) => {
         if (!user) {
@@ -61,7 +62,7 @@ class EntityController {
   //****Get all users from database****//
   //***********************************//
   getAllUser(request, response, next) {
-    this._user
+    this._knex(this._user)
       .select('*')
       .then(result => {
         result.forEach(arrayObj => delete arrayObj.hashedPassword);
@@ -76,7 +77,7 @@ class EntityController {
   //****Get all users by id from database****//
   //*****************************************//
   getUserById(request, response, next) {
-    this._user
+    this._knex(this._user)
       .where('id', request.params.id)
       .then(result => {
         result.map(arrayObj => delete arrayObj.hashedPassword);
@@ -97,7 +98,7 @@ class EntityController {
       name: request.body.name,
       email: request.body.email
     };
-    this._user
+    this._knex(this._user)
       .where('id', request.params.id)
       .update(attributes, '*')
       .then(result => {
@@ -113,38 +114,23 @@ class EntityController {
   //****************************//
   addUser(request, response, next) {
     if (!request.body.password) {
-      response
-        .set('Content-Type', 'text/plain')
-        .status(400)
-        .send('Password Needed');
+      throw new Error('HTTP_400 Password Needed');
     } else if (!request.body.email) {
-      response
-        .set('Content-Type', 'text/plain')
-        .status(400)
-        .send('Email must not be blank');
+      throw new Error('HTTP_400 Email Needed');
     } else {
-      // Check to see if the username already exists
-      this._user
-        .where('name', request.body.name)
+      // Check for duplicate name
+      this._knex(this._user).where('name', request.body.name).then(result => {
+        if (result.length > 0) {
+          throw new Error('HTTP_400 Duplicate UserName');
+        }
+      });
+      // Check for dupliate email
+      this._knex(this._user)
+        .where('email', request.body.email)
         .then(result => {
           if (result.length > 0) {
-            response
-              .status(400)
-              .type('text/plain')
-              .send('Username already exists');
-            throw new Error();
+            throw new Error('HTTP_400 Duplicate Email');
           }
-        })
-        .then(() => {
-          this._user.where('email', request.body.email).then(result => {
-            if (result.length > 0) {
-              response
-                .status(400)
-                .type('text/plain')
-                .send('Email already exists');
-              throw new Error();
-            }
-          });
         })
         .then(() => {
           bcrypt
@@ -178,12 +164,34 @@ class EntityController {
                   email: user.email
                 });
             })
-            .catch(() =>
-              response
-                .status(400)
-                .type('text/plain')
-                .send('Email already exists')
-            );
+            .catch(err => {
+              if (err.message === 'HTTP_400 Password Needed') {
+                response
+                  .set('Content-Type', 'text/plain')
+                  .status(400)
+                  .send('Password needed');
+              }
+              if (err.message === 'HTTP_400 Email Needed') {
+                response
+                  .set('Content-Type', 'text/plain')
+                  .status(400)
+                  .send('Email needed');
+              }
+              if (err.message === 'HTTP_400 Duplicate UserName') {
+                response
+                  .status(400)
+                  .type('text/plain')
+                  .send('Username already exists');
+              }
+              if (err.message === 'HTTP_400 Duplicate Email') {
+                response
+                  .status(400)
+                  .type('text/plain')
+                  .send('Email already exists');
+              } else {
+                next(err);
+              }
+            });
         });
     }
   }
