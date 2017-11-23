@@ -48,7 +48,7 @@ app.use(express.static(path.join('public')));
 //const signInRouter = require('./routes/signInRouter');
 
 const characterRouter = require('./instances/characterRouter');
-const cardRouter = require('./instances/cardRouter');
+//const cardRouter = require('./instances/cardRouter');
 const deckRouter = require('./instances/deckRouter');
 const entityRouter = require('./instances/entityRouter');
 
@@ -60,7 +60,7 @@ app.use(
   })
 );
 app.use(characterRouter);
-app.use(cardRouter);
+//app.use(cardRouter);
 app.use(deckRouter);
 app.use(entityRouter);
 //app.use(signInRouter);

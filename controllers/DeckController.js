@@ -1,3 +1,6 @@
+//**********SUMMART**********//
+//CRUD operations for Deck table. Manage all of the user's decks
+
 class DeckController {
   constructor({ deckTable, characterTable, cardTable }, knex) {
     this._knex = knex;
@@ -12,9 +15,7 @@ class DeckController {
     ]);
   }
 
-  //***********************************//
-  //************Get All Decks**********//
-  //***********************************//
+  // ************Get All Decks**********//
   getAllDeck(request, response, next) {
     const scope = {};
     this._knex(this._deck)
@@ -42,12 +43,14 @@ class DeckController {
       });
   }
 
-  //***********************************//
   //************Get Deck By Id*********//
-  //***********************************//
+  /**NOTES :id is NOT the deck's id. It is the user's id. Refactor in the future???**/
   getDeckById(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
     let paramsId = Number(request.params.id);
+
+    console.log('userId:', userId);
+    console.log('paramsId:', paramsId);
 
     if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
       throw new Error('HTTP_405 Not Found');
@@ -93,9 +96,7 @@ class DeckController {
       });
   }
 
-  //***********************************//
   //*************Create Deck***********//
-  //***********************************//
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
@@ -158,9 +159,7 @@ class DeckController {
     }
   }
 
-  //***********************************//
   //*************Delete Deck***********//
-  //***********************************//
   deleteDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
     let deck;

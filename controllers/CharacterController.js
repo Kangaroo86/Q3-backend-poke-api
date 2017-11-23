@@ -1,3 +1,6 @@
+//**********SUMMART**********//
+//To get default pokemon from Character Table
+
 class CharacterController {
   constructor({ characterTable }, knex) {
     this._knex = knex;
@@ -5,9 +8,7 @@ class CharacterController {
     this._bindMethods(['getAllCharacters']);
   }
 
-  //***********************************//
   //**********Get All Character********//
-  //***********************************//
   getAllCharacters(request, response, next) {
     this._knex(this._character)
       .orderBy('id', 'asc')
