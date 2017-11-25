@@ -1,0 +1,20 @@
+branch-defaults:
+  deployment:
+    environment: 2017PokemonBackend-env
+environment-defaults:
+  2017PokemonBackend-env:
+    branch: null
+    repository: null
+global:
+  application_name: 2017-pokemon-backend
+  default_ec2_keyname: 3mon0p-pokemon-backend
+  default_platform: arn:aws:elasticbeanstalk:us-west-1::platform/Node.js running on
+    64bit Amazon Linux/4.4.0
+  default_region: us-west-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: null
+  sc: git
+  workspace_type: Application

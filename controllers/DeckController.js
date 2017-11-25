@@ -11,7 +11,8 @@ class DeckController {
       'getAllDeck',
       'getDeckById',
       'createDeck',
-      'deleteDeck'
+      'deleteDeck',
+      'updateDeck'
     ]);
   }
 
@@ -49,16 +50,12 @@ class DeckController {
     const userId = request.jwt ? request.jwt.payload.sub : null;
     let paramsId = Number(request.params.id);
 
-    console.log('userId:', userId);
-    console.log('paramsId:', paramsId);
-
     if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
       throw new Error('HTTP_405 Not Found');
     }
 
     if (userId !== paramsId) {
-      response.sendStatus(405);
-      return;
+      throw new Error('HTTP_405 Not Found');
     }
 
     const scope = {};
@@ -100,11 +97,6 @@ class DeckController {
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
-    //let paramsId = Number(request.params.id);
-
-    //console.log('userId------', userId);
-    //console.log('paramsId------', paramsId); //null why?
-    //console.log('does this equal', paramsId === userId); //false cause paramsId is null
 
     if (!request.body.deckName) {
       throw new Error('HTTP_400 deckName is blank');
@@ -159,18 +151,60 @@ class DeckController {
     }
   }
 
+  //*************Update Deck***********//
+  updateDeck(request, response, next) {
+    //const userId = request.jwt ? request.jwt.payload.sub : null;
+    const paramId = Number(request.params.id);
+    if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {
+      throw new Error('HTTP_404 Not Found');
+    }
+    //clear the current pokemon deck
+    //allow user to reselect pokemon
+    //submit current selection by re-using create funtion, above
+    //console.log('userId-------', userId);
+    console.log('paramId-------', paramId);
+    const scope = {};
+    return this._knex(this._card)
+      .where('deckId', paramId)
+      .then(obj => {
+        console.log('this obj---', obj);
+        //scope.deckId = paramId;
+        return obj.map(result => {
+          return (result.characterId = '');
+          console.log('result is--------', result);
+        });
+      })
+      .then(result => {
+        //const { deckId } = scope;
+        console.log('this result----', result);
+        console.log('this scope----', scope);
+        response.json(result);
+        return;
+      })
+      .catch(err => {
+        if (err.message === 'HTTP_404 Not Found') {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(404)
+            .send('Deck Not found');
+          return;
+        }
+        next();
+      });
+  }
+
   //*************Delete Deck***********//
   deleteDeck(request, response, next) {
     const userId = request.jwt ? request.jwt.payload.sub : null;
     let deck;
-    let someId = parseInt(request.params.id);
+    let paramId = parseInt(request.params.id);
 
-    if (someId > 100 || someId < 0 || isNaN(someId) === true) {
+    if (paramId > 100 || paramId < 0 || isNaN(paramId) === true) {
       throw new Error('HTTP_404');
     } else {
       this._knex(this._deck)
         .where({ userId })
-        .where('id', request.params.id)
+        //.where('id', request.params.id)
         .first()
         .then(row => {
           if (!row) {

@@ -7,5 +7,6 @@ router.get('/decks', deckController.getAllDeck);
 router.get('/decks/:id(\\d+)', deckController.getDeckById);
 router.post('/decks/:id(\\d+)', deckController.createDeck);
 router.delete('/decks/:id(\\d+)', deckController.deleteDeck);
+router.patch('/decks/:id(\\d+)', deckController.updateDeck);
 
 module.exports = router;
