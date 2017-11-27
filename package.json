@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
+    "test-jest": "jest",
     "start:dev": "nodemon server.js",
     "start": "node server.js",
     "knex": "knex"
