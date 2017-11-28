@@ -72,6 +72,8 @@ describe('EntityController', () => {
         next
       );
 
+      //const actualEntity = JSON.parse(response._getData());
+
       console.log('actualEntity-----', actualEntity); //undefined
 
       expect(actualEntity).toEqual(expectedEntity);

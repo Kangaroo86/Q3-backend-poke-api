@@ -1,4 +1,3 @@
-const knex = require('../knex');
 const bcrypt = require('bcryptjs');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
@@ -19,9 +18,7 @@ class EntityController {
     ]);
   }
 
-  //***********************************//
   //************Create Token***********//
-  //***********************************//
   createToken(request, response, next) {
     const scope = {};
     const password = request.body.password;
@@ -56,9 +53,7 @@ class EntityController {
       });
   }
 
-  //***********************************//
   //****Get all users from database****//
-  //***********************************//
   getAllUser(request, response, next) {
     this._knex(this._user)
       .select('*')
@@ -71,9 +66,7 @@ class EntityController {
       });
   }
 
-  //*****************************************//
   //****Get all users by id from database****//
-  //*****************************************//
   getUserById(request, response, next) {
     this._knex(this._user)
       .where('id', request.params.id)
@@ -86,9 +79,7 @@ class EntityController {
       });
   }
 
-  //***************************************//
   //****Update user by id from database****//
-  //***************************************//
   //will not update in the database..why?
   //http PATCH localhost:8000/users/23 name="leannlee" email="lean007" password="newpass"
   updateUser(request, response, next) {
@@ -107,9 +98,7 @@ class EntityController {
       });
   }
 
-  //****************************//
   //****Add user to database****//
-  //****************************//
   addUser(request, response, next) {
     if (!request.body.password) {
       throw new Error('HTTP_400 Password Needed');
@@ -133,10 +122,11 @@ class EntityController {
           }
         })
         .then(() => {
+          //using bcrypt to hash password
           bcrypt
             .hash(request.body.password, 12)
             .then(hash_password => {
-              return knex('User').insert(
+              return this._knex(this._user).insert(
                 {
                   name: request.body.name,
                   email: request.body.email,
