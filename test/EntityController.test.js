@@ -4,6 +4,7 @@ const Boom = require('boom');
 const knex = require('knex');
 const KnexMock = require('mock-knex');
 const EntityController = require('../controllers/EntityController');
+const { omit } = require('../utils/ObjectUtils');
 
 describe('EntityController', () => {
   const db = knex({ client: 'pg' });
@@ -19,7 +20,7 @@ describe('EntityController', () => {
     KnexMock.mock(db);
     entityController = new EntityController(
       {
-        entityName: 'User',
+        userTable: 'User',
         entityService
       },
       db
@@ -32,52 +33,32 @@ describe('EntityController', () => {
   });
 
   describe('createToken', () => {
-    it('should respond with HTTP status 201 and the created entity', async () => {
+    it('should create an Entity', async () => {
       const inputEntity = {
-        name: 'Some name',
-        password: 'Some password',
-        description: 'Some description'
+        name: 'some name',
+        password: 'some password'
       };
 
       const expectedEntity = Object.assign({}, inputEntity, { id: 1 });
+
+      console.log('expectedEntity-----', expectedEntity);
 
       knexTracker.on('query', (query, step) => {
         expect(query.method).toBe('insert');
         query.response([expectedEntity]);
       });
 
-      const actualEntity = await entityController.createToken(inputEntity);
-
-      expect(actualEntity).toEqual(expectedEntity);
-      expect(omit(actualEntity, 'id')).toEqual(inputEntity);
-
-      //
       const request = HttpMock.createRequest({ body: inputEntity });
       const response = HttpMock.createResponse();
-
-      entityService.createToken.mockReturnValueOnce(
-        Promise.resolve(expectedEntity)
-      );
-
-      await entityController.createToken(request, response, () => {});
-
-      const actualEntityy = JSON.parse(response._getData());
-
-      expect(actualEntityy).toEqual(expectedEntity);
-      expect(response._isJSON()).toBe(true);
-      expect(response._getStatusCode()).toBe(201);
-      expect(response._getHeaders().Location).toBe(`/entities/1`);
-    });
-
-    it('should respond with HTTP status 400 when underlying service detects invalid input', async () => {
-      const inputEntity = {
-        description: 'Some description'
-      };
-
-      const request = HttpMock.createRequest({ body: inputEntity });
-      const response = HttpMock.createResponse();
-
       const next = jest.fn();
+
+      console.log('request-----', request);
+      console.log('response-----', response);
+      console.log('next-----', next);
+
+      // entityService.createToken.mockReturnValueOnce(
+      //   Promise.resolve(expectedEntity)
+      // );
 
       entityService.createToken.mockReturnValueOnce(
         Promise.reject(new Error('Service.ERROR_INVALID_INPUT'))
@@ -85,13 +66,76 @@ describe('EntityController', () => {
 
       await entityController.createToken(request, response, next);
 
+      const actualEntity = await entityController.createToken(
+        request,
+        response,
+        next
+      );
+
+      console.log('actualEntity-----', actualEntity); //undefined
+
+      expect(actualEntity).toEqual(expectedEntity);
+      expect(omit(actualEntity, 'id')).toEqual(inputEntity);
       expect(next).toBeCalledWith(
         Boom.badRequest('Service.ERROR_INVALID_INPUT')
       );
     });
-  });
 
-  afterEach(() => {
-    knexTracker.uninstall();
+    afterEach(() => {
+      knexTracker.uninstall();
+    });
+
+    afterAll(() => {
+      KnexMock.unmock(db);
+    });
+
+    //HttpMock
+    // describe('createToken', () => {
+    //   it('should respond with HTTP status 201 and the created entity', async () => {
+    //     const inputEntity = {
+    //       name: 'Some name',
+    //       password: 'Some password'
+    //     };
+    //
+    //     const expectedEntity = Object.assign({}, inputEntity, { id: 1 });
+    //
+    //     const request = HttpMock.createRequest({ body: inputEntity });
+    //     const response = HttpMock.createResponse();
+    //
+    //     entityService.createToken.mockReturnValueOnce(
+    //       Promise.resolve(expectedEntity)
+    //     );
+    //
+    //     await entityController.createToken(request, response, () => {});
+    //
+    //     const actualEntity = JSON.parse(response._getData()); //what is _getData()
+    //
+    //     expect(actualEntity).toEqual(expectedEntity);
+    //     expect(response._isJSON()).toBe(true);
+    //     expect(response._getStatusCode()).toBe(201);
+    //     expect(response._getHeaders().Location).toBe(`/users/1`);
+    //   });
+    //
+    //   it('should respond with HTTP status 400 when underlying service detects invalid input', async () => {
+    //     const inputEntity = {
+    //       description: 'Some description'
+    //     };
+    //
+    //     const request = HttpMock.createRequest({ body: inputEntity });
+    //     const response = HttpMock.createResponse();
+    //
+    //     const next = jest.fn();
+    //
+    //     entityService.createToken.mockReturnValueOnce(
+    //       Promise.reject(new Error('Service.ERROR_INVALID_INPUT'))
+    //     );
+    //
+    //     await entityController.createToken(request, response, next);
+    //
+    //     expect(next).toBeCalledWith(
+    //       Boom.badRequest('Service.ERROR_INVALID_INPUT')
+    //     );
+    //   });
+    // });
   });
 });
