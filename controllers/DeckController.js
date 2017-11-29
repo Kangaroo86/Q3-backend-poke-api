@@ -167,8 +167,8 @@ class DeckController {
 
   //*************Update Deck***********//
   updateDeck(request, response, next) {
-    console.log('hellllllllo there');
     try {
+      console.log('hellllllllo there');
       //const userId = request.jwt ? request.jwt.payload.sub : null;
       const paramId = Number(request.params.id);
       if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {

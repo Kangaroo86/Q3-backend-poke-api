@@ -10,7 +10,7 @@ class EntityController {
     this._knex = knex;
     this._user = userTable;
     this._bindMethods([
-      'getAllUser',
+      'getAllUsers',
       'getUserById',
       'updateUser',
       'addUser',
@@ -61,14 +61,20 @@ class EntityController {
   }
 
   //****Get all users from database****//
-  getAllUser(request, response, next) {
+  getAllUsers(request, response, next) {
     try {
-      this._knex(this._user).select('*').then(users => {
-        users.forEach(arrayObj => {
-          delete arrayObj.hashedPassword;
-          response.json(users);
+      const scope = {};
+      this._knex(this._user)
+        .select('*')
+        .then(users => {
+          users.forEach(arrayObj => {
+            delete arrayObj.hashedPassword;
+            scope.usersObj = users;
+          });
+        })
+        .then(result => {
+          response.json(scope);
         });
-      });
     } catch (err) {
       next(err);
     }
@@ -79,7 +85,7 @@ class EntityController {
     try {
       const userId = request.params.id;
       this._knex(this._user).where('id', userId).then(user => {
-        user.map(arrayObj => {
+        user.forEach(arrayObj => {
           delete arrayObj.hashedPassword;
           response.json(user);
         });

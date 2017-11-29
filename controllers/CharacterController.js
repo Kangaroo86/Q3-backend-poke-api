@@ -1,5 +1,7 @@
 //**********SUMMART**********//
 //To get default pokemon from Character Table
+//Function below are not used in production
+//CharacterController > CharacterController > CharacterRouter
 
 class CharacterController {
   constructor({ characterTable }, knex) {

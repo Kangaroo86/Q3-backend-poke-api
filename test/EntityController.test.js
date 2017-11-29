@@ -12,7 +12,7 @@ describe('EntityController', () => {
   let entityController = null;
   const entityService = {
     createToken: jest.fn(),
-    getAllUser: jest.fn(),
+    getAllUsers: jest.fn(),
     getUserById: jest.fn()
   };
 

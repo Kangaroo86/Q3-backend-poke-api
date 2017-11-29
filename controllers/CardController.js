@@ -1,3 +1,8 @@
+//**********SUMMART**********//
+//Card table contains all of deckId and characterId associated with it.
+//Function below are not used in production
+//CardController > cardController > cardRouter
+
 class CardController {
   constructor({ cardTable }, knex) {
     this._knex = knex;
@@ -5,9 +10,7 @@ class CardController {
     this._bindMethods(['getAllCards', 'createCard', 'deleteCard']);
   }
 
-  //***********************************//
   //************Get All Cards**********//
-  //***********************************//
   getAllCards(request, response, next) {
     this._knex(this._card)
       .select('*')
@@ -17,6 +20,7 @@ class CardController {
       .catch(err => next(err));
   }
 
+  //************Create Cards**********//
   createCard(request, response, next) {
     let attributes = {
       deckId: request.body.deckId,
@@ -30,9 +34,7 @@ class CardController {
       .catch(err => next(err));
   }
 
-  //***********************************//
   //************Delete Decks***********//
-  //***********************************//
   deleteCard(request, response, next) {
     let card;
     let someId = parseInt(request.params.id);
