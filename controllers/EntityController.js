@@ -24,37 +24,37 @@ class EntityController {
     const password = request.body.password;
     const name = request.body.name;
 
-    console.log('does it go throuhg------------------');
-
     return this._knex(this._user)
       .where({ name })
       .then(([user]) => {
         if (!user) {
-          throw new Error('HTTP_400');
+          throw new Error('HTTP_400_bad_user_request');
         }
         scope.user = user;
-        console.log('my scope-----', scope);
         return bcrypt.compare(password, user.hashedPassword);
       })
       .then(result => {
-        console.log('result-----', result);
+        if (!result) {
+          throw new Error('HTTP_400_bad_password_request');
+        }
         return signJWT({ sub: scope.user.id }, JWT_KEY);
       })
       .then(token => {
-        console.log('token-----', token);
         delete scope.user.hashedPassword;
         scope.user.token = token;
-        console.log('scope result-----', scope);
         response.json(scope.user);
       })
       .catch(err => {
-        console.log('my errr------', err);
-        if (err.message === 'HTTP_400') {
+        if (err.message === 'HTTP_400_bad_user_request') {
           response
             .set('Content-Type', 'text/plain')
             .status(400)
-            .send('Bad request');
-          return;
+            .send('User does not exist');
+        } else if (err.message === 'HTTP_400_bad_password_request') {
+          response
+            .set('Content-Type', 'text/plain')
+            .status(400)
+            .send('Password does not exist');
         }
         next(err);
       });
