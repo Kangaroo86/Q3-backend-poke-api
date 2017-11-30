@@ -163,6 +163,7 @@ class DeckController {
   //*************Update Deck***********//
   updateDeck(request, response, next) {
     try {
+      console.log('what is my parama---', request.params.id);
       //const userId = request.jwt ? request.jwt.payload.sub : null;
       const paramId = Number(request.params.id);
       if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {
@@ -171,7 +172,6 @@ class DeckController {
 
       return this._knex(this._card).del().where('deckId', paramId).then(() => {
         request.body.characterIdArray.forEach(pokemonId => {
-          console.log('pokemonId------', pokemonId);
           return this._knex.transaction(trx => {
             return this._knex(this._card)
               .where('deckId', paramId)
@@ -187,6 +187,7 @@ class DeckController {
         });
       });
     } catch (err) {
+      console.log('>>>>>>>>>', err);
       if (err.message === 'HTTP_5000000 POWERRANGER') {
         response
           .set('Content-Type', 'text/plain')
