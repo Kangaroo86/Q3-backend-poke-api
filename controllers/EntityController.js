@@ -1,3 +1,8 @@
+//**********SUMMART**********//
+//CRUD operation on User Table. Crate token for users and hashed their password
+//Function below are not used in production
+//EntityController > entityController > entityRouter
+
 const bcrypt = require('bcryptjs');
 const JWTenv = require('./../env');
 const jwt = require('jsonwebtoken');
@@ -96,7 +101,7 @@ class EntityController {
   }
 
   //****Update user by id from database****//
-  //will not update in the database..why?
+  //Not used in production
   //http PATCH localhost:8000/users/23 name="leannlee" email="lean007" password="newpass"
   updateUser(request, response, next) {
     let attributes = {

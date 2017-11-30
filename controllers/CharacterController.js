@@ -1,7 +1,8 @@
 //**********SUMMART**********//
 //To get default pokemon from Character Table
 //Function below are not used in production
-//CharacterController > CharacterController > CharacterRouter
+//Future Production: Add all of existing pokemon and allow Front-end to randomly choose cards
+//CharacterController > characterController > characterRouter
 
 class CharacterController {
   constructor({ characterTable }, knex) {

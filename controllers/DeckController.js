@@ -1,5 +1,6 @@
 //**********SUMMART**********//
 //CRUD operations for Deck table. Manage all of the user's decks
+//Used deck Table, character Table, and card Table
 
 class DeckController {
   constructor({ deckTable, characterTable, cardTable }, knex) {
@@ -17,6 +18,7 @@ class DeckController {
   }
 
   // ************Get All Decks**********//
+  //Not used in production
   getAllDeck(request, response, next) {
     try {
       const scope = {};
@@ -25,8 +27,9 @@ class DeckController {
           scope.decks = decks;
           const promises = decks.map(deck =>
             this._knex(this._character).whereIn(
+              //SELECT "characterId" FROM "Card" WHERE "deckId" IN (1,2,3,4,5)
               'id',
-              this._knex(this._card)
+              this._knex(this._card) //SELECT "characterId" FROM "Card" WHERE "deckId" = 1
                 .select('characterId')
                 .where({ deckId: deck.id })
             )
@@ -141,14 +144,6 @@ class DeckController {
             })
             .catch(err => {
               trx.rollback();
-              // if (err.message === 'HTTP_400 deckName is blank') {
-              //   response
-              //     .set('Content-Type', 'text/plain')
-              //     .status(400)
-              //     .send('Deck name must not be blank');
-              // } else {
-              //   next(err);
-              // }
               throw err;
             });
         });
@@ -168,7 +163,6 @@ class DeckController {
   //*************Update Deck***********//
   updateDeck(request, response, next) {
     try {
-      console.log('hellllllllo there');
       //const userId = request.jwt ? request.jwt.payload.sub : null;
       const paramId = Number(request.params.id);
       if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {
@@ -176,7 +170,8 @@ class DeckController {
       }
 
       return this._knex(this._card).del().where('deckId', paramId).then(() => {
-        request.body.pokemonIds.forEach(pokemonId => {
+        request.body.characterIdArray.forEach(pokemonId => {
+          console.log('pokemonId------', pokemonId);
           return this._knex.transaction(trx => {
             return this._knex(this._card)
               .where('deckId', paramId)
@@ -210,16 +205,40 @@ class DeckController {
     // })
   }
 
+  // updateDeck(request, response, next) {
+  //   try {
+  //     //const userId = request.jwt ? request.jwt.payload.sub : null;
+  //     const paramId = Number(request.params.id);
+  //     if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {
+  //       throw new Error('HTTP_5000000 POWERRANGER');
+  //     }
+  //     console.log('what is my body------', request.body);
+  //
+  //     this._knex(this._card)
+  //       .where('deckId', paramId)
+  //       .update({ characterId: request.body.characterIdArray[0] }, '*') //how do you pass this as an array
+  //       .then(results => {
+  //         console.log('my results----', results);
+  //         //let updates = results;
+  //         let output = Object.assign({}, results[0]); //why are we making a copy
+  //         response.json(output);
+  //       })
+  //       .catch(err => {
+  //         console.log('my current err', err);
+  //       });
+  //   } catch (err) {
+  //     console.log('my err--', err);
+  //
+  //     next();
+  //   }
+  // }
+
   //*************Delete Deck***********//
   deleteDeck(request, response, next) {
     try {
       const userId = request.jwt ? request.jwt.payload.sub : null;
       let deck;
       let paramId = parseInt(request.params.id);
-
-      if (userId !== paramId) {
-        throw new Error('HTTP_405 Not Found');
-      }
 
       if (paramId > 100 || paramId < 0 || isNaN(paramId) === true) {
         throw new Error('HTTP_405 Not Found');
