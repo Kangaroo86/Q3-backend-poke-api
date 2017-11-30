@@ -55,12 +55,12 @@ class DeckController {
       const userId = request.jwt ? request.jwt.payload.sub : null;
       let paramsId = Number(request.params.id);
 
-      if (paramsId < 0 || paramsId > 100 || isNaN(paramsId) === true) {
-        throw new Error('HTTP_405 Not Found');
+      if (paramsId < 0 || isNaN(paramsId) === true) {
+        throw new Error('HTTP_405 param id is either less than zero or NaN');
       }
 
       if (userId !== paramsId) {
-        throw new Error('HTTP_405 Not Found');
+        throw new Error('HTTP_405 userId does not match to paramId');
       }
 
       const scope = {};
@@ -87,11 +87,16 @@ class DeckController {
           response.json(decks);
         });
     } catch (err) {
-      if (err.message === 'HTTP_405 Not Found') {
+      if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
           .set('Content-Type', 'text/plain')
           .status(405)
-          .send('ParamId and UserId does not match');
+          .send('HTTP_405 param id is either less than zero or NaN');
+      } else if (err.message === 'HTTP_405 userId does not match to paramId') {
+        response
+          .set('Content-Type', 'text/plain')
+          .status(405)
+          .send('HTTP_405 userId does not match to paramId');
       } else {
         next(err);
       }
@@ -105,7 +110,7 @@ class DeckController {
       const userId = request.jwt ? request.jwt.payload.sub : null;
 
       if (!request.body.deckName) {
-        throw new Error('HTTP_400 deckName is blank');
+        throw new Error('HTTP_400 deckName could not be blank');
       } else {
         const scope = {};
         return this._knex.transaction(trx => {
@@ -149,11 +154,11 @@ class DeckController {
         });
       }
     } catch (err) {
-      if (err.message === 'HTTP_400 deckName is blank') {
+      if (err.message === 'HTTP_400 deckName could not be blank') {
         response
           .set('Content-Type', 'text/plain')
           .status(400)
-          .send('Deck name must not be blank');
+          .send('HTTP_400 deckName could not be blank');
       } else {
         next(err);
       }
@@ -163,11 +168,10 @@ class DeckController {
   //*************Update Deck***********//
   updateDeck(request, response, next) {
     try {
-      console.log('what is my parama---', request.params.id);
       //const userId = request.jwt ? request.jwt.payload.sub : null;
       const paramId = Number(request.params.id);
-      if (paramId < 0 || paramId > 100 || isNaN(paramId) === true) {
-        throw new Error('HTTP_5000000 POWERRANGER');
+      if (paramId < 0 || isNaN(paramId) === true) {
+        throw new Error('HTTP_405 param id is either less than zero or NaN');
       }
 
       return this._knex(this._card).del().where('deckId', paramId).then(() => {
@@ -187,23 +191,15 @@ class DeckController {
         });
       });
     } catch (err) {
-      console.log('>>>>>>>>>', err);
-      if (err.message === 'HTTP_5000000 POWERRANGER') {
+      if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
           .set('Content-Type', 'text/plain')
           .status(404)
-          .send('Deck Not found POKEMON');
+          .send('HTTP_405 param id is either less than zero or NaN');
         return;
       }
       next();
     }
-    // .update({ characterId: request.body.characterId }, '*')
-    // .where('deckId', paramId)
-    // .then(result => {
-    //   let updated = Object.assign({}, result[0]);
-    //   response.json(updated);
-    //   return;
-    // })
   }
 
   // updateDeck(request, response, next) {
@@ -241,8 +237,8 @@ class DeckController {
       let deck;
       let paramId = parseInt(request.params.id);
 
-      if (paramId > 100 || paramId < 0 || isNaN(paramId) === true) {
-        throw new Error('HTTP_405 Not Found');
+      if (paramId < 0 || isNaN(paramId) === true) {
+        throw new Error('HTTP_405 param id is either less than zero or NaN');
       } else {
         this._knex(this._deck)
           .where({ userId })
@@ -261,11 +257,11 @@ class DeckController {
           });
       }
     } catch (err) {
-      if (err.message === 'HTTP_405 Not Found') {
+      if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
           .set('Content-Type', 'text/plain')
           .status(404)
-          .send('ParamId or UserId does not match');
+          .send('HTTP_405 param id is either less than zero or NaN');
         return;
       }
       next(err);
