@@ -4,6 +4,7 @@ exports.up = function(knex) {
     table.string('deckname').notNullable();
     table.integer('wins').notNullable().defaultTo(0);
     table.integer('losses').notNullable().defaultTo(0);
+    table.text('cards');
     table
       .integer('userId')
       .references('id')

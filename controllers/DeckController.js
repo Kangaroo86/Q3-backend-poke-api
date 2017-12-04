@@ -84,10 +84,13 @@ class DeckController {
           return Promise.all(promises);
         })
         .then(results => {
+          console.log('deckController----', results);
           const { decks } = scope;
           decks.forEach((deck, i) => {
+            console.log('mydeck-------', deck, 'myIndex-----', i);
             deck.cards = results[i];
           });
+          console.log('my scope----', scope);
           response.json(decks);
         });
     } catch (err) {

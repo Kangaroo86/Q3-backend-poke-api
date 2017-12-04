@@ -102,11 +102,9 @@ class EntityController {
 
   //****Update user by id from database****//
   //Not used in production
-  //http PATCH localhost:8000/users/23 name="leannlee" email="lean007" password="newpass"
   updateUser(request, response, next) {
     let attributes = {
-      name: request.body.name,
-      email: request.body.email
+      name: request.body.name
     };
     this._knex(this._user)
       .where('id', request.params.id)
@@ -124,8 +122,6 @@ class EntityController {
     try {
       if (!request.body.password) {
         throw new Error('HTTP_400 Password Needed');
-      } else if (!request.body.email) {
-        throw new Error('HTTP_400 Email Needed');
       } else if (!request.body.name) {
         throw new Error('HTTP_400 Name Needed');
       } else {
@@ -136,48 +132,37 @@ class EntityController {
           }
         });
 
-        // Check for dupliate email
-        this._knex(this._user)
-          .where('email', request.body.email)
-          .then(result => {
-            if (result.length > 0) {
-              throw new Error('HTTP_400 Duplicate Email');
-            }
-          })
-          .then(() => {
-            //using bcrypt to hash password
-            bcrypt
-              .hash(request.body.password, 12)
-              .then(hash_password => {
-                return this._knex(this._user).insert(
-                  {
-                    name: request.body.name,
-                    email: request.body.email,
-                    hashedPassword: hash_password
-                  },
-                  '*'
-                );
-              })
-              .then(users => {
-                const user = users[0];
-                let token = jwt.sign(
-                  {
-                    id: user.id,
-                    name: user.name,
-                    email: user.email
-                  },
-                  JWTenv.JWT_KEY
-                );
-                response
-                  .status(200)
-                  .cookie('token', token, { httpOnly: true })
-                  .json({
-                    id: user.id,
-                    name: user.name,
-                    email: user.email
-                  });
-              });
-          });
+        this._knex(this._user).then(() => {
+          //using bcrypt to hash password
+          bcrypt
+            .hash(request.body.password, 12)
+            .then(hash_password => {
+              return this._knex(this._user).insert(
+                {
+                  name: request.body.name,
+                  hashedPassword: hash_password
+                },
+                '*'
+              );
+            })
+            .then(users => {
+              const user = users[0];
+              let token = jwt.sign(
+                {
+                  id: user.id,
+                  name: user.name
+                },
+                JWTenv.JWT_KEY
+              );
+              response
+                .status(200)
+                .cookie('token', token, { httpOnly: true })
+                .json({
+                  id: user.id,
+                  name: user.name
+                });
+            });
+        });
       }
     } catch (err) {
       if (err.message === 'HTTP_400 Password Needed') {
@@ -185,11 +170,6 @@ class EntityController {
           .set('Content-Type', 'text/plain')
           .status(400)
           .send('Password needed');
-      } else if (err.message === 'HTTP_400 Email Needed') {
-        response
-          .set('Content-Type', 'text/plain')
-          .status(400)
-          .send('Email needed');
       } else if (err.message === 'HTTP_400 Name Needed') {
         response
           .set('Content-Type', 'text/plain')
@@ -200,11 +180,6 @@ class EntityController {
           .set('Content-Type', 'text/plain')
           .status(400)
           .send('Username already exists');
-      } else if (err.message === 'HTTP_400 Duplicate Email') {
-        response
-          .set('Content-Type', 'text/plain')
-          .status(400)
-          .send('Email already exists');
       } else {
         next(err);
       }
