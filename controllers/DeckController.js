@@ -50,6 +50,10 @@ class DeckController {
 
   //************Get Deck By Id*********//
   /**NOTES :id is NOT the deck's id. It is the user's id. Refactor in the future???**/
+  //change to /users/7/decks
+
+  ///users/7/decks
+
   getDeckById(request, response, next) {
     try {
       const userId = request.jwt ? request.jwt.payload.sub : null;
@@ -168,28 +172,35 @@ class DeckController {
   //*************Update Deck***********//
   updateDeck(request, response, next) {
     try {
-      //const userId = request.jwt ? request.jwt.payload.sub : null;
-      const paramId = Number(request.params.id);
-      if (paramId < 0 || isNaN(paramId) === true) {
+      const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
+      const paramUserId = Number(request.params.id);
+      const paramDeckId = Number(request.params.deckid);
+
+      if (paramDeckId < 0 || isNaN(paramDeckId) === true) {
         throw new Error('HTTP_405 param id is either less than zero or NaN');
+      } else if (jwtUserId !== paramUserId) {
+        throw new Error('HTTP_401 unauthorized access');
       }
 
-      return this._knex(this._card).del().where('deckId', paramId).then(() => {
-        request.body.characterIdArray.forEach(pokemonId => {
-          return this._knex.transaction(trx => {
-            return this._knex(this._card)
-              .where('deckId', paramId)
-              .transacting(trx)
-              .insert(
-                {
-                  deckId: paramId,
-                  characterId: pokemonId
-                },
-                '*'
-              );
+      return this._knex(this._card)
+        .del()
+        .where('deckId', paramDeckId)
+        .then(() => {
+          request.body.characterIdArray.forEach(pokemonId => {
+            return this._knex.transaction(trx => {
+              return this._knex(this._card)
+                .where('deckId', paramDeckId)
+                .transacting(trx)
+                .insert(
+                  {
+                    deckId: paramDeckId,
+                    characterId: pokemonId
+                  },
+                  '*'
+                );
+            });
           });
         });
-      });
     } catch (err) {
       if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
@@ -233,28 +244,21 @@ class DeckController {
   //*************Delete Deck***********//
   deleteDeck(request, response, next) {
     try {
-      const userId = request.jwt ? request.jwt.payload.sub : null;
-      let deck;
-      let paramId = parseInt(request.params.id);
+      const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
 
-      if (paramId < 0 || isNaN(paramId) === true) {
+      let paramUserId = parseInt(request.params.id);
+      let paramDeckId = parseInt(request.params.deckid);
+
+      if (paramUserId < 0 || isNaN(paramUserId) === true) {
         throw new Error('HTTP_405 param id is either less than zero or NaN');
+      } else if (paramDeckId < 0 || isNaN(paramDeckId) === true) {
+        throw new Error('HTTP_405 param id is either less than zero or NaN');
+      } else if (jwtUserId !== paramUserId) {
+        throw new Error('HTTP_401 unauthorized access');
       } else {
-        this._knex(this._deck)
-          .where({ userId })
-          //.where('id', request.params.id)
-          .first()
-          .then(row => {
-            if (!row) {
-              return next();
-            }
-            deck = row;
-            return this._knex(this._deck).del().where('id', request.params.id);
-          })
-          .then(() => {
-            delete deck.id;
-            response.json();
-          });
+        this._knex(this._deck).del().where('id', paramDeckId).then(() => {
+          response.json();
+        });
       }
     } catch (err) {
       if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
@@ -262,6 +266,12 @@ class DeckController {
           .set('Content-Type', 'text/plain')
           .status(404)
           .send('HTTP_405 param id is either less than zero or NaN');
+        return;
+      } else if (err.message === 'HTTP_401 unauthorized access') {
+        response
+          .set('Content-Type', 'text/plain')
+          .status(401)
+          .send('HTTP_401 unauthorized access');
         return;
       }
       next(err);
