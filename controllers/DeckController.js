@@ -21,39 +21,15 @@ class DeckController {
   //Not used in production
   getAllDeck(request, response, next) {
     try {
-      const scope = {};
-      this._knex(this._deck)
-        .then(decks => {
-          scope.decks = decks;
-          const promises = decks.map(deck =>
-            this._knex(this._character).whereIn(
-              //SELECT "characterId" FROM "Card" WHERE "deckId" IN (1,2,3,4,5)
-              'id',
-              this._knex(this._card) //SELECT "characterId" FROM "Card" WHERE "deckId" = 1
-                .select('characterId')
-                .where({ deckId: deck.id })
-            )
-          );
-          return Promise.all(promises);
-        })
-        .then(results => {
-          const { decks } = scope;
-          decks.forEach((deck, i) => {
-            deck.cards = results[i];
-          });
-          response.json(decks);
-        });
+      this._knex(this._deck).select('*').then(results => {
+        response.json(results);
+      });
     } catch (err) {
       next(err);
     }
   }
 
   //************Get Deck By Id*********//
-  /**NOTES :id is NOT the deck's id. It is the user's id. Refactor in the future???**/
-  //change to /users/7/decks
-
-  ///users/7/decks
-
   getDeckById(request, response, next) {
     try {
       const userId = request.jwt ? request.jwt.payload.sub : null;
@@ -67,32 +43,9 @@ class DeckController {
         throw new Error('HTTP_405 userId does not match to paramId');
       }
 
-      const scope = {};
-
-      this._knex(this._deck)
-        .where({ userId })
-        .then(decks => {
-          scope.decks = decks;
-          const promises = decks.map(deck =>
-            this._knex(this._character).whereIn(
-              'id',
-              this._knex(this._card)
-                .select('characterId')
-                .where({ deckId: deck.id })
-            )
-          );
-          return Promise.all(promises);
-        })
-        .then(results => {
-          console.log('deckController----', results);
-          const { decks } = scope;
-          decks.forEach((deck, i) => {
-            console.log('mydeck-------', deck, 'myIndex-----', i);
-            deck.cards = results[i];
-          });
-          console.log('my scope----', scope);
-          response.json(decks);
-        });
+      this._knex(this._deck).where({ userId }).then(decks => {
+        response.json(decks);
+      });
     } catch (err) {
       if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
@@ -112,14 +65,15 @@ class DeckController {
 
   //*************Create Deck***********//
   //you can't test this in a terminal, whereas front-end will succee//
+
   createDeck(request, response, next) {
     try {
       const userId = request.jwt ? request.jwt.payload.sub : null;
+      const cardsStr = request.body.cards.join();
 
       if (!request.body.deckName) {
         throw new Error('HTTP_400 deckName could not be blank');
       } else {
-        const scope = {};
         return this._knex.transaction(trx => {
           return this._knex(this._deck)
             .where({ userId })
@@ -127,32 +81,13 @@ class DeckController {
             .insert(
               {
                 deckname: request.body.deckName,
-                userId: request.body.userId
+                userId: request.body.userId,
+                cards: cardsStr
               },
               '*'
             )
-            .then(([deck]) => {
-              scope.deck = deck;
-              const pokemonIds = request.body.pokemonIds;
-              return this._knex(this._character)
-                .transacting(trx)
-                .whereIn('pokemonId', pokemonIds);
-            })
-            .then(characters => {
-              return this._knex(this._card).transacting(trx).insert(
-                characters.map(character => ({
-                  deckId: scope.deck.id,
-                  characterId: character.id
-                })),
-                '*'
-              );
-            })
             .then(cards => {
-              trx.commit();
-              const { deck } = scope;
-              deck.cards = cards;
-              response.json(deck);
-              return;
+              response.json(cards);
             })
             .catch(err => {
               trx.rollback();
@@ -178,6 +113,7 @@ class DeckController {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       const paramUserId = Number(request.params.id);
       const paramDeckId = Number(request.params.deckid);
+      const cardsStr = request.body.cards.join();
 
       if (paramDeckId < 0 || isNaN(paramDeckId) === true) {
         throw new Error('HTTP_405 param id is either less than zero or NaN');
@@ -185,25 +121,20 @@ class DeckController {
         throw new Error('HTTP_401 unauthorized access');
       }
 
-      return this._knex(this._card)
-        .del()
-        .where('deckId', paramDeckId)
-        .then(() => {
-          request.body.characterIdArray.forEach(pokemonId => {
-            return this._knex.transaction(trx => {
-              return this._knex(this._card)
-                .where('deckId', paramDeckId)
-                .transacting(trx)
-                .insert(
-                  {
-                    deckId: paramDeckId,
-                    characterId: pokemonId
-                  },
-                  '*'
-                );
-            });
-          });
+      return this._knex(this._deck).del().where('id', paramDeckId).then(() => {
+        return this._knex.transaction(trx => {
+          return this._knex(this._deck)
+            .where('id', paramDeckId)
+            .transacting(trx)
+            .insert(
+              {
+                deckId: paramDeckId,
+                cards: cardsStr
+              },
+              '*'
+            );
         });
+      });
     } catch (err) {
       if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
