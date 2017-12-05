@@ -10,12 +10,9 @@ const deckController = require('./deckController');
 // router.patch('/decks/:id(\\d+)', deckController.updateDeck);
 
 router.get('/decks', deckController.getAllDeck); //not used in production
-router.get('/users/:id(\\d+)/decks', deckController.getDeckById);
-router.post('/users/:id(\\d+)/decks', deckController.createDeck);
-router.delete(
-  '/users/:id(\\d+)/decks/:deckid(\\d+)',
-  deckController.deleteDeck
-);
-router.patch('/users/:id(\\d+)/decks/:deckid(\\d+)', deckController.updateDeck);
+router.get('/users/:id(\\d+)/decks', deckController.getDeckById); //good
+router.post('/users/:id(\\d+)/decks', deckController.createDeck); //good
+router.delete('/decks/:deckid(\\d+)', deckController.deleteDeck);
+router.patch('/decks/:deckid(\\d+)', deckController.updateDeck); //good
 
 module.exports = router;
