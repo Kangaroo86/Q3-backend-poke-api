@@ -3,11 +3,12 @@
 //Used deck Table, character Table, and card Table
 
 class DeckController {
-  constructor({ deckTable, characterTable, cardTable }, knex) {
+  constructor({ deckTable, characterTable, cardTable, userTable }, knex) {
     this._knex = knex;
     this._deck = deckTable;
     this._character = characterTable;
     this._card = cardTable;
+    this._user = userTable;
     this._bindMethods([
       'getAllDeck',
       'getDeckById',
@@ -71,8 +72,8 @@ class DeckController {
       const cardsStr = request.body.pokemonIds.join();
       const deckName = request.body.deckName;
       const userid = request.body.userId;
-      this._knex(this._deck).select('userId').then(userId => {
-        if (userId[0].userId !== jwtUserId) {
+      this._knex(this._user).where('id', userid).select('id').then(userId => {
+        if (userId[0].id !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');
         } else if (request.body.deckName === '') {
           throw new Error('HTTP_400 deckName could not be blank');
@@ -122,9 +123,9 @@ class DeckController {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       const paramDeckId = Number(request.params.deckid);
       const cardsStr = request.body.characterIdArray.join();
-
-      this._knex(this._deck).select('userId').then(userId => {
-        if (userId[0].userId !== jwtUserId) {
+      const userid = Number(request.body.userId);
+      this._knex(this._deck).where('userId', userid).then(deckObj => {
+        if (deckObj[0].userId !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');
         } else if (paramDeckId < 0 || isNaN(paramDeckId) === true) {
           throw new Error('HTTP_405 param id is either less than zero or NaN');

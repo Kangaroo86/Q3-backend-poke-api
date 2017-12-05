@@ -5,7 +5,8 @@ module.exports = new DeckController(
   {
     deckTable: 'Deck',
     characterTable: 'Character',
-    cardTable: 'Card'
+    cardTable: 'Card',
+    userTable: 'User'
   },
   knex
 );

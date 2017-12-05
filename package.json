@@ -37,6 +37,7 @@
     "morgan": "^1.9.0",
     "pg": "^7.3.0",
     "pluralize": "^7.0.0",
+    "react-player": "^0.25.3",
     "yup": "^0.23.0"
   },
   "devDependencies": {
