@@ -113,7 +113,7 @@ class DeckController {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       const paramUserId = Number(request.params.id);
       const paramDeckId = Number(request.params.deckid);
-      const cardsStr = request.body.cards.join();
+      const cardsStr = request.body.characterIdArray.join();
 
       if (paramDeckId < 0 || isNaN(paramDeckId) === true) {
         throw new Error('HTTP_405 param id is either less than zero or NaN');
@@ -121,22 +121,27 @@ class DeckController {
         throw new Error('HTTP_401 unauthorized access');
       }
 
-      return this._knex(this._deck).del().where('id', paramDeckId).then(() => {
-        return this._knex.transaction(trx => {
-          return this._knex(this._deck)
-            .where('id', paramDeckId)
-            .transacting(trx)
-            .insert(
-              {
-                deckId: paramDeckId,
-                cards: cardsStr
-              },
-              '*'
-            );
+      return this._knex(this._deck)
+        .select('*')
+        .where('id', paramDeckId)
+        .then(result => {
+          return this._knex.transaction(trx => {
+            return this._knex(this._deck)
+              .where('id', paramDeckId)
+              .transacting(trx)
+              .update({ cards: cardsStr }, '*')
+              .then(updated => {
+                let outPut = Object.assign({}, updated);
+                response.json(outPut);
+              });
+          });
         });
-      });
     } catch (err) {
-      if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
+      if (err) {
+        return err;
+      } else if (
+        err.message === 'HTTP_405 param id is either less than zero or NaN'
+      ) {
         response
           .set('Content-Type', 'text/plain')
           .status(404)
