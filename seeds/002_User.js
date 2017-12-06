@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 
-const DEFAULT_HASHED_PASSWORD = bcrypt.hashSync('supersecret', 12);
+const DEFAULT_HASHED_PASSWORD = bcrypt.hashSync('super', 12);
 
 exports.seed = function(knex, Promise) {
   return knex('User')
@@ -9,27 +9,27 @@ exports.seed = function(knex, Promise) {
       return knex('User').insert([
         {
           id: 1,
-          name: 'Cang',
+          name: 'cang',
           hashedPassword: DEFAULT_HASHED_PASSWORD
         },
         {
           id: 2,
-          name: 'Leann',
+          name: 'leann',
           hashedPassword: DEFAULT_HASHED_PASSWORD
         },
         {
           id: 3,
-          name: 'Lisa',
+          name: 'lisa',
           hashedPassword: DEFAULT_HASHED_PASSWORD
         },
         {
           id: 4,
-          name: 'Nestor',
+          name: 'nestor',
           hashedPassword: DEFAULT_HASHED_PASSWORD
         },
         {
           id: 5,
-          name: 'Helen',
+          name: 'helen',
           hashedPassword: DEFAULT_HASHED_PASSWORD
         }
       ]);
