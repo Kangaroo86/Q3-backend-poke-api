@@ -168,16 +168,21 @@ class DeckController {
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       let paramDeckId = parseInt(request.params.deckid);
-
-      this._knex(this._deck).select('userId').then(result => {
-        if (jwtUserId !== result[0].userId) {
-          throw new Error('HTTP_401 unauthorized access');
-        } else {
-          this._knex(this._deck).del().where('id', paramDeckId).then(result => {
-            response.json();
-          });
-        }
-      });
+      this._knex(this._deck)
+        .select('userId')
+        .where('userId', jwtUserId)
+        .then(result => {
+          if (jwtUserId !== result[0].userId) {
+            throw new Error('HTTP_401 unauthorized access');
+          } else {
+            this._knex(this._deck)
+              .del()
+              .where('id', paramDeckId)
+              .then(result => {
+                response.json();
+              });
+          }
+        });
     } catch (err) {
       if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
         response
