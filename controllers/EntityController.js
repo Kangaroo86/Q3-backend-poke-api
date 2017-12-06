@@ -28,28 +28,39 @@ class EntityController {
     const scope = {};
     const password = request.body.password;
     const name = request.body.name;
-
+    console.log('password---------', password);
+    console.log('name---------', name);
     return this._knex(this._user)
       .where({ name })
       .then(([user]) => {
+        console.log('users-------', user);
         if (!user) {
           throw new Error('HTTP_400_bad_user_request');
         }
         scope.user = user;
+        console.log('user************2', user);
+        console.log(
+          '**************LEANN',
+          bcrypt.compare(password, user.hashedPassword)
+        );
         return bcrypt.compare(password, user.hashedPassword);
       })
       .then(result => {
+        console.log('result-------', result);
         if (!result) {
           throw new Error('HTTP_400_bad_password_request');
         }
+        console.log('did it passs here');
         return signJWT({ sub: scope.user.id }, JWT_KEY);
       })
       .then(token => {
+        console.log('token-------', token);
         delete scope.user.hashedPassword;
         scope.user.token = token;
         response.json(scope.user);
       })
       .catch(err => {
+        console.log('my err----', err);
         if (err.message === 'HTTP_400_bad_user_request') {
           response
             .set('Content-Type', 'text/plain')

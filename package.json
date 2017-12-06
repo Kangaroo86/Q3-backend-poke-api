@@ -35,9 +35,11 @@
     "lodash.omit": "^4.5.0",
     "lodash.pick": "^4.4.0",
     "morgan": "^1.9.0",
+    "of": "^1.0.0",
+    "peer": "^0.2.8",
     "pg": "^7.3.0",
     "pluralize": "^7.0.0",
-    "react-player": "^0.25.3",
+    "react": "^16.2.0",
     "yup": "^0.23.0"
   },
   "devDependencies": {
