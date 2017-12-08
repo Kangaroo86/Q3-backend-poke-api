@@ -41,8 +41,8 @@ app.use(express.static(path.join('public')));
 //   response.sendStatus(406);
 // });
 
-// const characterRouter = require('./routes/characterRouter');
-// const cardRouter = require('./routes/cardRouter');
+//const characterRouter = require('./routes/characterRouter');
+//const cardRouter = require('./routes/cardRouter');
 //const deckRouter = require('./routes/deckRouter');
 //const userRouter = require('./routes/userRouter');
 //const signInRouter = require('./routes/signInRouter');
