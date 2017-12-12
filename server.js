@@ -4,15 +4,16 @@ require('./env');
 
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
 
 app.disable('x-powered-by');
 
 const cors = require('cors');
-const bodyParser = require('body-parser');
-//const cookieParser = require('cookie-parser');
+//const bodyParser = require('body-parser'); dont delete this
 const morgan = require('morgan');
 const { JWT_KEY } = require('./env');
 const jwt = require('express-jwt');
+//const cookieParser = require('cookie-parser');
 
 switch (process.env.NODE_ENV) {
   case 'development':
@@ -29,7 +30,6 @@ app.use(cors());
 //app.use(cookieParser());
 
 const path = require('path');
-
 app.use(express.static(path.join('public')));
 
 // CSRF protection
@@ -63,8 +63,6 @@ app.use(
 app.use(characterRouter);
 app.use(deckRouter);
 app.use(entityRouter);
-//app.use(cardRouter);
-//app.use(signInRouter);
 
 app.use((request, response) => {
   response.sendStatus(404);
@@ -78,16 +76,25 @@ app.use((error, request, response, next) => {
       .send(error.message);
     return;
   }
-
   console.error('Error stack', error.stack); // eslint-disable-line no-console
   response.sendStatus(500);
 });
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  if (process.env.NODE_ENV === 'test') return;
+//******dont delete
+// app.listen(port, () => {
+//   if (process.env.NODE_ENV === 'test') return;
+//   console.log(`Listening on port ${port}`); // eslint-disable-line no-console
+// });
+
+var server = require('http').Server(app); //socket-io
+var io = require('socket.io')(server); //socket-io
+server.listen(port, () => {
   console.log(`Listening on port ${port}`); // eslint-disable-line no-console
 });
+
+const SocketManager = require('./socket_io/SocketManager')(io); //socket-io
+io.on('connection', SocketManager); //socket-io
 
 module.exports = app;

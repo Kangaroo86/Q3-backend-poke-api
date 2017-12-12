@@ -2,7 +2,7 @@
   "name": "ll",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "mocha",
     "test-jest": "jest",
@@ -41,6 +41,7 @@
     "pluralize": "^7.0.0",
     "react": "^16.2.0",
     "socket.io": "^2.0.4",
+    "uuid": "^3.1.0",
     "yup": "^0.23.0"
   },
   "devDependencies": {
