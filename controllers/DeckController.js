@@ -140,17 +140,13 @@ class DeckController {
                   .transacting(trx)
                   .update({ cards: cardsStr }, '*') //notes:update only take in string
                   .then(() => {
-                    //reason for this is because you want to pull the lates update
+                    //reason using two tables is b/c you want to pull the lates update
                     this._knex(this._deck)
                       .where('userId', userid)
                       .then(decks => {
                         response.json(decks);
                       });
                   });
-                // .then(updated => {
-                //   let outPut = Object.assign({}, updated);
-                //   response.json(outPut);
-                // });
               });
             });
         }

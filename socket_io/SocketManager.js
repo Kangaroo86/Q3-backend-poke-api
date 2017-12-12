@@ -22,6 +22,7 @@ module.exports = io =>
 
     //Verify Username
     socket.on(VERIFY_USER, (name, callback) => {
+      console.log('name-----', name);
       if (isUser(connectedUsers, name)) {
         callback({ isUser: true, user: null });
       } else {
@@ -31,6 +32,7 @@ module.exports = io =>
 
     //User Connects with username
     socket.on(USER_CONNECTED, user => {
+      console.log('user-------', user);
       connectedUsers = addUser(connectedUsers, user);
       socket.user = user;
 
@@ -38,7 +40,7 @@ module.exports = io =>
       sendTypingFromUser = sendTypingToChat(user.name);
 
       io.emit(USER_CONNECTED, connectedUsers);
-      console.log(connectedUsers);
+      console.log('user connected------:', connectedUsers);
     });
 
     //User disconnects
