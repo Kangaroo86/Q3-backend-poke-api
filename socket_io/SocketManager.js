@@ -1,28 +1,22 @@
-const { createUser, createMessage, createChat } = require('./Factories');
+const { createUser } = require('./Factories');
 const {
   VERIFY_USER,
   USER_CONNECTED,
   USER_DISCONNECTED,
+  MESSAGE_SEND,
   LOGOUT,
-  COMMUNITY_CHAT,
-  MESSAGE_RECIEVED,
-  MESSAGE_SENT,
-  TYPING
+  MESSAGE_RECIEVED
 } = require('./Events');
 
 let connectedUsers = {};
-let communityChat = createChat();
+let rooms = ['g60', 'KingOfGame', 'PalletTown'];
 
 module.exports = io =>
   function(socket) {
-    console.log('Socket Id ***** ' + socket.id);
+    console.log('Socket Id *****' + socket.id);
 
-    let sendMessageToChatFromUser;
-    let sendTypingFromUser;
-
-    //Verify Username
+    //***VERIFY USERNAME***//
     socket.on(VERIFY_USER, (name, callback) => {
-      console.log('name-----', name);
       if (isUser(connectedUsers, name)) {
         callback({ isUser: true, user: null });
       } else {
@@ -30,64 +24,84 @@ module.exports = io =>
       }
     });
 
-    //User Connects with username
+    //***USER CONNECTS W/ USERNAME***//
     socket.on(USER_CONNECTED, user => {
-      console.log('user-------', user);
       connectedUsers = addUser(connectedUsers, user);
       socket.user = user;
-
-      sendMessageToChatFromUser = sendMessageToChat(user.name);
-      sendTypingFromUser = sendTypingToChat(user.name);
+      socket.room = rooms[0]; //default to room g60
+      socket.join(socket.room);
 
       io.emit(USER_CONNECTED, connectedUsers);
+      //console.log('socket connected------:', socket);
       console.log('user connected------:', connectedUsers);
     });
 
-    //User disconnects
-    socket.on('disconnect', () => {
-      if ('user' in socket) {
-        connectedUsers = removeUser(connectedUsers, socket.user.name);
-
-        io.emit(USER_DISCONNECTED, connectedUsers);
-        console.log('Disconnect', connectedUsers);
-      }
-    });
-
-    //User logsout
+    //***USER LOGSOUT***//
     socket.on(LOGOUT, () => {
       connectedUsers = removeUser(connectedUsers, socket.user.name);
       io.emit(USER_DISCONNECTED, connectedUsers);
-      console.log('Disconnect', connectedUsers);
     });
 
-    //Get Community Chat
-    socket.on(COMMUNITY_CHAT, callback => {
-      callback(communityChat);
+    //***USER DISCONNECTS***//
+    socket.on('disconnect', () => {
+      if ('user' in socket) {
+        connectedUsers = removeUser(connectedUsers, socket.user.name);
+        io.emit(USER_DISCONNECTED, socket.user.name);
+
+        updateGlobal(socket, 'disconnected');
+        socket.leave(socket.room);
+      }
     });
 
-    socket.on(MESSAGE_SENT, ({ chatId, message }) => {
-      sendMessageToChatFromUser(chatId, message);
+    //***SEND MESSAGES***//
+    socket.on(MESSAGE_SEND, data => {
+      io.emit(MESSAGE_RECIEVED, data);
     });
 
-    socket.on(TYPING, ({ chatId, isTyping }) => {
-      sendTypingFromUser(chatId, isTyping);
+    //***SEND MESSAGES TO A DEFAULT ROOM***//
+    socket.on('MESSAGE_SEND_ROOM', data => {
+      //send the message to everyone
+      console.log(socket.username + ' sent a message');
+      io.sockets.in(socket.room).emit('updateChat', socket.username, data);
     });
 
-    //Returns a function that will take a chat id and a boolean isTyping
-    function sendTypingToChat(user) {
-      return (chatId, isTyping) => {
-        io.emit(`${TYPING}-${chatId}`, { user, isTyping });
-      };
+    socket.on('switchRoom', newRoom => {
+      socket.leave(socket.room);
+      socket.join(newRoom);
+      //update client
+      updateClient(socket, socket.username, newRoom);
+      //update old room
+      updateChatRoom(socket, 'disconnected');
+      //change room
+      socket.room = newRoom;
+      //update new room
+      updateChatRoom(socket, 'connected');
+      updateRoomList(socket, socket.room);
+    });
+
+    //update single client with this.
+    function updateClient(socket, user, newRoom) {
+      socket.emit('updateChat', 'SERVER', "You've connected to " + newRoom);
     }
 
-    //Returns a function that will take a chat id and message
-    function sendMessageToChat(sender) {
-      return (chatId, message) => {
-        io.emit(
-          `${MESSAGE_RECIEVED}-${chatId}`,
-          createMessage({ message, sender })
-        );
-      };
+    function updateRoomList(socket, currentRoom) {
+      socket.emit('updateRooms', rooms, currentRoom);
+    }
+
+    //We will use this function to update the chatroom when a user joins or leaves
+    function updateChatRoom(socket, message) {
+      socket.broadcast
+        .to(socket.room)
+        .emit('updateChat', 'SERVER', socket.user + ' has ' + message);
+    }
+
+    //We will use this function to update everyone!
+    function updateGlobal(socket, message) {
+      socket.broadcast.emit(
+        'updateChat',
+        'SERVER',
+        socket.username + ' has ' + message
+      );
     }
 
     //Adds user to list passed in.
