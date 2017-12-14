@@ -72,6 +72,7 @@ class DeckController {
       const cardsStr = request.body.pokemonIds.join();
       const deckName = request.body.deckName;
       const userid = request.body.userId;
+
       this._knex(this._user).where('id', userid).select('id').then(userId => {
         if (userId[0].id !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');

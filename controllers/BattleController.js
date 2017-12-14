@@ -5,41 +5,40 @@ class BattleController {
     this._knex = knex;
     this._battle = battleTable;
     this._user = userTable;
-    this._bindMethods(['getAllDeck']);
+    this._bindMethods(['requestBattle', 'createBattle']);
   }
 
-  //************Get Deck By Id*********//
-  getDeckById(request, response, next) {
-    try {
-      const userId = request.jwt ? request.jwt.payload.sub : null;
-      let paramsId = Number(request.params.id);
+  //************REQUEST BATTLE*********//
+  //find a room for battle that have vacant seat
+  requestBattle(request, response, next) {
+    const userId = request.body.userId;
 
-      if (paramsId < 0 || isNaN(paramsId) === true) {
-        throw new Error('HTTP_405 param id is either less than zero or NaN');
-      }
-
-      if (userId !== paramsId) {
-        throw new Error('HTTP_405 userId does not match to paramId');
-      }
-
-      this._knex(this._deck).where({ userId }).then(decks => {
-        response.json(decks);
+    this._knex(this._battle)
+      .select('status')
+      .where('status', 'pending')
+      .first() //select the first column
+      .then(record => {
+        return this._knex.transaction(trx => {
+          return this._knex(this._battle)
+            .where('id', record.id)
+            .transacting(trx)
+            .update({ userTwoId: userId, status: 'progress' }, '*')
+            .then(battleObj => {
+              response.json(battleObj);
+            });
+        });
       });
-    } catch (err) {
-      if (err.message === 'HTTP_405 param id is either less than zero or NaN') {
-        response
-          .set('Content-Type', 'text/plain')
-          .status(405)
-          .send('HTTP_405 param id is either less than zero or NaN');
-      } else if (err.message === 'HTTP_405 userId does not match to paramId') {
-        response
-          .set('Content-Type', 'text/plain')
-          .status(405)
-          .send('HTTP_405 userId does not match to paramId');
-      } else {
-        next(err);
-      }
-    }
+  }
+
+  //************CREATE BATTLE*********//
+  createBattle(request, response, next) {
+    const userId = request.body.userId;
+
+    this._knex(this._battle)
+      .insert({ status: 'pending', userOneId: userId })
+      .then(battleObj => {
+        response.json(battleObj);
+      });
   }
 
   //****Binding Methods****//

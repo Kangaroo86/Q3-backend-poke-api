@@ -3,7 +3,8 @@ const knex = require('../knex');
 
 module.exports = new BattleController(
   {
-    battleTable: 'Battle'
+    battleTable: 'Battle',
+    userTable: 'User'
   },
   knex
 );

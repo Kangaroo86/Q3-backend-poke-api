@@ -51,6 +51,14 @@ app.use(express.static(path.join('public')));
 const characterRouter = require('./instances/characterRouter');
 const deckRouter = require('./instances/deckRouter');
 const entityRouter = require('./instances/entityRouter');
+const battleRouter = require('./instances/battleRouter');
+const battleMessageRouter = require('./instances/battleMessageRouter');
+
+app.use(characterRouter);
+app.use(deckRouter);
+app.use(entityRouter);
+app.use(battleRouter);
+app.use(battleMessageRouter);
 
 app.use(
   jwt({
@@ -59,10 +67,6 @@ app.use(
     credentialsRequired: false
   })
 );
-
-app.use(characterRouter);
-app.use(deckRouter);
-app.use(entityRouter);
 
 app.use((request, response) => {
   response.sendStatus(404);

@@ -5,11 +5,11 @@ class BattleMessageController {
     this._knex = knex;
     this._battle = battleMessageTable;
     this._user = userTable;
-    this._bindMethods(['getAllDeck']);
+    this._bindMethods(['getBattleMessage']);
   }
 
   //************Get Deck By Id*********//
-  getDeckById(request, response, next) {
+  getBattleMessage(request, response, next) {
     try {
       const userId = request.jwt ? request.jwt.payload.sub : null;
       let paramsId = Number(request.params.id);

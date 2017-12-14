@@ -6,18 +6,22 @@ exports.seed = function(knex) {
         {
           id: 1,
           status: 'pending',
-          userOneId: 1,
-          userTwoId: 2
+          userOneId: 1
         },
         {
           id: 2,
+          status: 'pending',
+          userOneId: 2
+        },
+        {
+          id: 3,
           status: 'progress',
           userOneId: 3,
           userTwoId: 4
         },
         {
-          id: 3,
-          status: 'done',
+          id: 4,
+          status: 'progress',
           userOneId: 5,
           userTwoId: 6
         }
