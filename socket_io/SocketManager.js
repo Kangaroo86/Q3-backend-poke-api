@@ -46,8 +46,16 @@ module.exports = io =>
     });
 
     //***USER LOGSOUT***//
-    socket.on(LOGOUT, () => {
-      connectedUsers = removeUser(connectedUsers, socket.user.name);
+    socket.on(LOGOUT, userName => {
+      connectedUsers = removeUser(connectedUsers, userName);
+      for (const prop in rooms) {
+        rooms[prop].forEach(user => {
+          let index = rooms[prop].indexOf(user);
+          if (user === userName) {
+            rooms[prop].splice(index, 1);
+          }
+        });
+      }
       io.emit(USER_DISCONNECTED, connectedUsers);
     });
 
@@ -57,21 +65,21 @@ module.exports = io =>
     });
 
     //Adds user to list passed in.
-    function addUser(userList, user) {
-      let newList = Object.assign({}, userList);
-      newList[user.name] = user;
-      return newList;
+    function addUser(connectedUsers, user) {
+      let newConnectedUsers = Object.assign({}, connectedUsers);
+      newConnectedUsers[user.name] = user;
+      return newConnectedUsers;
     }
 
     //Removes user from the list passed in.
-    function removeUser(userList, username) {
-      let newList = Object.assign({}, userList);
-      delete newList[username];
-      return newList;
+    function removeUser(connectedUsers, userName) {
+      let newConnectedUsers = Object.assign({}, connectedUsers);
+      delete newConnectedUsers[userName];
+      return newConnectedUsers;
     }
 
     //Checks if the user is in list passed in.
-    function isUser(userList, username) {
-      return username in userList;
-    }
+    // function isUser(userList, username) {
+    //   return username in userList;
+    // }
   };
