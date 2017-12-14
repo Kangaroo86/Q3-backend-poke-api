@@ -31,6 +31,11 @@ exports.seed = function(knex, Promise) {
           id: 5,
           name: 'helen',
           hashedPassword: DEFAULT_HASHED_PASSWORD
+        },
+        {
+          id: 6,
+          name: 'anthony',
+          hashedPassword: DEFAULT_HASHED_PASSWORD
         }
       ]);
     })

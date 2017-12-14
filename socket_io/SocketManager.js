@@ -39,7 +39,6 @@ module.exports = io =>
           break;
         }
       }
-
       io.emit(USER_CONNECTED, connectedUsers);
       console.log('user connected------:', connectedUsers);
       console.log('rooms------:', rooms);
