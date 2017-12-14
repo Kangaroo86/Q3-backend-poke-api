@@ -10,7 +10,7 @@ exports.up = function(knex) {
     table.text('text');
     table
       .integer('userId')
-      .reference('id')
+      .references('id')
       .inTable('User')
       .onDelete('cascade')
       .index();
