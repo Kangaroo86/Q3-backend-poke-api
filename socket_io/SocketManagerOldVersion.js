@@ -5,7 +5,6 @@ const {
   USER_DISCONNECTED,
   MESSAGE_SEND,
   LOGOUT,
-  USER_CREATED,
   MESSAGE_RECIEVED
 } = require('./Events');
 
@@ -17,22 +16,23 @@ module.exports = io =>
     console.log('Socket Id *****' + socket.id);
 
     //***VERIFY USERNAME***//
-    socket.on(VERIFY_USER, (name, userId) => {
-      let user = {};
-      if (userId === 'null') {
-        user = createUser({ name: name });
-        socket.emit(USER_CREATED, user);
-        connectedUsers = addUser(connectedUsers, user);
+    socket.on(VERIFY_USER, (name, callback) => {
+      if (isUser(connectedUsers, name)) {
+        callback({ isUser: true, user: null });
       } else {
-        user.id = userId;
-        user.name = name;
+        callback({ isUser: false, user: createUser({ name: name }) });
       }
+    });
 
+    //***USER CONNECTS W/ USERNAME***//
+    socket.on(USER_CONNECTED, user => {
+      console.log('user-----', user);
+      connectedUsers = addUser(connectedUsers, user);
       socket.user = user;
       socket.room = rooms;
-      //socket.join(socket.room);
+      socket.join(socket.room);
 
-      //auto push 2 users per room. //TODO.if statement to prevent user from getting add to the room when refreshed
+      //auto push 2 users per room.
       for (const prop in rooms) {
         if (rooms[prop].length < 2) {
           rooms[prop].push(user.name);
@@ -41,6 +41,7 @@ module.exports = io =>
       }
 
       io.emit(USER_CONNECTED, connectedUsers);
+      console.log('socket connected------:', socket);
       console.log('user connected------:', connectedUsers);
       console.log('rooms------:', rooms);
     });
