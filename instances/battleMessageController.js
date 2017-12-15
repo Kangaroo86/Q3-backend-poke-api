@@ -3,7 +3,8 @@ const knex = require('../knex');
 
 module.exports = new BattleMessageController(
   {
-    battleMessageTable: 'BattleMessage'
+    battleMessageTable: 'BattleMessage',
+    userTable: 'User'
   },
   knex
 );

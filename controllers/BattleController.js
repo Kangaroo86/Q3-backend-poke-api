@@ -14,13 +14,17 @@ class BattleController {
     const userId = request.body.userId;
 
     this._knex(this._battle)
-      .select('status')
+      .select('id')
       .where('status', 'pending')
       .first() //select the first column
       .then(record => {
+        if (!record) {
+          //if no room, create newRoom
+          return this.createBattle(request, response, next);
+        }
         return this._knex.transaction(trx => {
           return this._knex(this._battle)
-            .where('id', record.id)
+            .where('id', record.id) //
             .transacting(trx)
             .update({ userTwoId: userId, status: 'progress' }, '*')
             .then(battleObj => {

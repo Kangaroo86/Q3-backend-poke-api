@@ -1,10 +1,10 @@
+const knex = require('../knex');
+
 const { createUser } = require('./Factories');
 const {
   VERIFY_USER,
   USER_CONNECTED,
-  USER_DISCONNECTED,
   MESSAGE_SEND,
-  LOGOUT,
   USER_CREATED,
   MESSAGE_RECIEVED
 } = require('./Events');
@@ -14,10 +14,11 @@ let rooms = { g60: [], KingOfGame: [], PalletTown: [] };
 
 module.exports = io =>
   function(socket) {
-    console.log('Socket Id *****' + socket.id);
+    //console.log('Socket Id *****' + socket.id);
 
     //***VERIFY USERNAME***//
-    socket.on(VERIFY_USER, (name, userId) => {
+    socket.on(VERIFY_USER, (name, userId, battleId) => {
+      //goes on the HOME Page
       let user = {};
       if (userId === 'null') {
         user = createUser({ name: name });
@@ -27,40 +28,24 @@ module.exports = io =>
         user.id = userId;
         user.name = name;
       }
-
       socket.user = user;
-      socket.room = rooms;
       //socket.join(socket.room);
 
-      //auto push 2 users per room. //TODO.if statement to prevent user from getting add to the room when refreshed
-      for (const prop in rooms) {
-        if (rooms[prop].length < 2) {
-          rooms[prop].push(user.name);
-          break;
-        }
+      if (battleId !== 'null') {
+        getMessage(battleId);
       }
-      io.emit(USER_CONNECTED, connectedUsers);
-      console.log('user connected------:', connectedUsers);
-      console.log('rooms------:', rooms);
-    });
 
-    //***USER LOGSOUT***//
-    socket.on(LOGOUT, userName => {
-      connectedUsers = removeUser(connectedUsers, userName);
-      for (const prop in rooms) {
-        rooms[prop].forEach(user => {
-          let index = rooms[prop].indexOf(user);
-          if (user === userName) {
-            rooms[prop].splice(index, 1);
-          }
-        });
-      }
-      io.emit(USER_DISCONNECTED, connectedUsers);
+      io.emit(USER_CONNECTED, connectedUsers);
+      //console.log('user connected------:', connectedUsers);
+      //console.log('rooms------:', rooms);
     });
 
     //***SEND MESSAGES***//
     socket.on(MESSAGE_SEND, data => {
-      io.emit(MESSAGE_RECIEVED, data);
+      let { userId, battleId, text } = data;
+
+      createMessage(userId, battleId, text);
+      io.emit(MESSAGE_RECIEVED, text);
     });
 
     //Adds user to list passed in.
@@ -75,6 +60,26 @@ module.exports = io =>
       let newConnectedUsers = Object.assign({}, connectedUsers);
       delete newConnectedUsers[userName];
       return newConnectedUsers;
+    }
+
+    function createMessage(userId, battleId, text) {
+      knex.transaction(trx => {
+        return knex('BattleMessage')
+          .transacting(trx)
+          .insert({ battleId: battleId, userId: userId, text: text });
+      });
+    }
+
+    //
+    function getMessage(battleId) {
+      knex('BattleMessage')
+        .select('text')
+        .where('battleId', battleId)
+        .then(arrayOfText => {
+          arrayOfText.forEach(text => {
+            io.emit('MESSAGE_RECIEVED', text);
+          });
+        });
     }
 
     //Checks if the user is in list passed in.
