@@ -52,15 +52,12 @@ class BattleController {
       .first()
       .then(record => {
         record
-          ? this._knex.transaction(trx => {
-              this._knex(this._battle)
-                .where('id', record.id)
-                .transacting(trx)
-                .update({ userTwoId: userId, status: 'progress' }, '*')
-                .then(battleObj => {
-                  response.json(battleObj);
-                });
-            })
+          ? this._knex(this._battle)
+              .where('id', record.id)
+              .update({ status: 'progress', userTwoId: userId }, '*')
+              .then(battleObj => {
+                response.json(battleObj);
+              })
           : this._knex(this._battle) //if not, create new battle and add user
               .insert({ status: 'pending', userOneId: userId })
               .then(battleObj => {
