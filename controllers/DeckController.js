@@ -67,7 +67,7 @@ class DeckController {
   //*************Create Deck***********//
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
-    console.log('request--------', request.jwy);
+    console.log('request.jwt--------', request.jwt);
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       const cardsStr = request.body.pokemonIds.join();
@@ -77,7 +77,7 @@ class DeckController {
       console.log('userid -------', userid);
 
       this._knex(this._user).where('id', userid).select('id').then(userId => {
-        console.log('user query------', userId);
+        //console.log('user query------', userId);
         if (userId[0].id !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');
         } else if (request.body.deckName === '') {

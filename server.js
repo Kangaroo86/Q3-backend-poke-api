@@ -41,25 +41,13 @@ app.use(express.static(path.join('public')));
 //   response.sendStatus(406);
 // });
 
-//const characterRouter = require('./routes/characterRouter');
-//const cardRouter = require('./routes/cardRouter');
-//const deckRouter = require('./routes/deckRouter');
-//const userRouter = require('./routes/userRouter');
-//const signInRouter = require('./routes/signInRouter');
-//const cardRouter = require('./instances/cardRouter');
-
 const characterRouter = require('./instances/characterRouter');
 const deckRouter = require('./instances/deckRouter');
 const entityRouter = require('./instances/entityRouter');
 const battleRouter = require('./instances/battleRouter');
 const battleMessageRouter = require('./instances/battleMessageRouter');
 
-app.use(characterRouter);
-app.use(deckRouter);
-app.use(entityRouter);
-app.use(battleRouter);
-app.use(battleMessageRouter);
-
+//Don't move this around. Keep its position as it//
 app.use(
   jwt({
     secret: JWT_KEY,
@@ -67,6 +55,13 @@ app.use(
     credentialsRequired: false
   })
 );
+
+app.use(characterRouter);
+app.use(deckRouter);
+app.use(entityRouter);
+app.use(battleRouter);
+app.use(battleMessageRouter);
+//Don't move this around. Keep its position as it//
 
 app.use((request, response) => {
   response.sendStatus(404);

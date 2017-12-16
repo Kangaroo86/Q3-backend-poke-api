@@ -7,8 +7,7 @@ exports.up = function(knex) {
       .references('id')
       .inTable('User')
       .onDelete('cascade')
-      .index()
-      .notNullable();
+      .index();
     table
       .integer('userTwoId')
       .references('id')

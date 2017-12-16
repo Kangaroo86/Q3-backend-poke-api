@@ -9,9 +9,10 @@ class BattleController {
   }
 
   //************REQUEST BATTLE*********//
+  //Might not user this
   //find a room for battle that have vacant seat
   requestBattle(request, response, next) {
-    const userId = request.body.userId;
+    const userId = request.body.userTwoId;
 
     this._knex(this._battle)
       .select('id')
@@ -36,12 +37,35 @@ class BattleController {
 
   //************CREATE BATTLE*********//
   createBattle(request, response, next) {
-    const userId = request.body.userId;
+    const userId = request.body.userOneId;
 
-    this._knex(this._battle)
-      .insert({ status: 'pending', userOneId: userId })
-      .then(battleObj => {
-        response.json(battleObj);
+    // FIRST! check if there is a pending battle.
+    // if so, add current user to that battleId
+    // SQL: ELECT * FROM Battle WHERE userOneId != userId AND status = 'pending' LIMIT 1
+    // ===> let's say this return 62, then update that record to assign user to it
+    // SQL: UPDATE Battle SET userTwoId = userId WHERE battle-id = 62;
+
+    this._knex(this._battle) //check pending battle
+      .select('*')
+      .whereNotIn('userOneId', [userId])
+      .whereIn('status', ['pending'])
+      .first()
+      .then(record => {
+        record
+          ? this._knex.transaction(trx => {
+              this._knex(this._battle)
+                .where('id', record.id)
+                .transacting(trx)
+                .update({ userTwoId: userId, status: 'progress' }, '*')
+                .then(battleObj => {
+                  response.json(battleObj);
+                });
+            })
+          : this._knex(this._battle) //if not, create new battle and add user
+              .insert({ status: 'pending', userOneId: userId })
+              .then(battleObj => {
+                response.json(battleObj);
+              });
       });
   }
 
