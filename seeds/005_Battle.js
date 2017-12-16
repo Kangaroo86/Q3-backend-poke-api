@@ -23,7 +23,12 @@ exports.seed = function(knex) {
           id: 4,
           status: 'progress',
           userOneId: 5,
-          userTwoId: 6
+          userTwoId: 6,
+          state: JSON.stringify({
+            playerid: 'Cang',
+            turn: false,
+            deckzone: [1, 2, 3, 4]
+          })
         }
       ]);
     })

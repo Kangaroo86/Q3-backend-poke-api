@@ -5,7 +5,12 @@ class BattleController {
     this._knex = knex;
     this._battle = battleTable;
     this._user = userTable;
-    this._bindMethods(['requestBattle', 'createBattle']);
+    this._bindMethods([
+      'requestBattle',
+      'createBattle',
+      'getBattleState',
+      'setBattleState'
+    ]);
   }
 
   //************REQUEST BATTLE*********//
@@ -35,6 +40,29 @@ class BattleController {
       });
   }
 
+  getBattleState(request, response, next) {
+    const battleId = request.body.battleId;
+
+    this._knex(this._battle)
+      .select('state')
+      .where('id', battleId)
+      .then(state => {
+        response.json(state);
+      });
+  }
+
+  setBattleState(request, response, next) {
+    const battleId = request.body.battleId;
+    const stateObj = request.body.stateObj;
+
+    this._knex(this._battle)
+      .where('id', battleId)
+      .update({ state: stateObj }, '*')
+      .then(battleObj => {
+        response.json(battleObj);
+      });
+  }
+
   //************CREATE BATTLE*********//
   createBattle(request, response, next) {
     const userId = request.body.userOneId;
@@ -56,12 +84,12 @@ class BattleController {
               .where('id', record.id)
               .update({ status: 'progress', userTwoId: userId }, '*')
               .then(battleObj => {
-                response.json(battleObj);
+                response.json(2);
               })
           : this._knex(this._battle) //if not, create new battle and add user
               .insert({ status: 'pending', userOneId: userId })
               .then(battleObj => {
-                response.json(battleObj);
+                response.json(1);
               });
       });
   }

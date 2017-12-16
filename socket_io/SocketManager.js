@@ -41,22 +41,22 @@ module.exports = io =>
     });
 
     //***CREATE BATTLE***//
-    socket.on(VERIFY_USERTWO_COLUMN, userOneId => {
-      console.log('socket userId-----------', typeof userOneId);
-      knex('Battle')
-        .where('userOneId', userOneId)
-        //.first()
-        //.where('userTwoId', null)
-        .select('userTwoId')
-        .then(result => {
-          console.log('my result------', result);
-          if (result.userTwoId !== null) {
-            socket.emit(USERTWO_COLUMN_STATUS, true);
-          } else {
-            socket.emit(USERTWO_COLUMN_STATUS, false);
-          }
-        });
-    });
+    // socket.on(VERIFY_USERTWO_COLUMN, userOneId => {
+    //   console.log('socket userId-----------', typeof userOneId);
+    //   knex('Battle')
+    //     .where('userOneId', userOneId)
+    //     //.first()
+    //     //.where('userTwoId', null)
+    //     .select('userTwoId')
+    //     .then(result => {
+    //       console.log('my result------', result);
+    //       if (result.userTwoId !== null) {
+    //         socket.emit(USERTWO_COLUMN_STATUS, true);
+    //       } else {
+    //         socket.emit(USERTWO_COLUMN_STATUS, false);
+    //       }
+    //     });
+    // });
 
     //***SEND MESSAGES***//
     socket.on(MESSAGE_SEND, data => {
