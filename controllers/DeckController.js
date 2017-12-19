@@ -67,14 +67,11 @@ class DeckController {
   //*************Create Deck***********//
   //you can't test this in a terminal, whereas front-end will succee//
   createDeck(request, response, next) {
-    console.log('request.jwt--------', request.jwt);
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       const cardsStr = request.body.pokemonIds.join();
       const deckName = request.body.deckName;
       const userid = request.body.userId;
-      console.log('jwtUserId-------', jwtUserId);
-      console.log('userid -------', userid);
 
       this._knex(this._user).where('id', userid).select('id').then(userId => {
         //console.log('user query------', userId);

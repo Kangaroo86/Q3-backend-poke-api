@@ -41,55 +41,56 @@ class BattleController {
   }
 
   getBattleState(request, response, next) {
-    const battleId = request.body.battleId;
+    const id = Number(request.params.battleId);
+    console.log('id passed-------', id);
 
     this._knex(this._battle)
       .select('state')
-      .where('id', battleId)
+      .where('id', id)
+      .first()
       .then(state => {
-        response.json(state);
+        console.log('my state-------', state);
+        response.json(state.state);
       });
   }
 
   setBattleState(request, response, next) {
-    const battleId = request.body.battleId;
+    const battleId = Number(request.body.battleId);
     const stateObj = request.body.stateObj;
 
     this._knex(this._battle)
       .where('id', battleId)
       .update({ state: stateObj }, '*')
       .then(battleObj => {
+        console.log('getBattleState-------', battleObj);
         response.json(battleObj);
       });
   }
 
   //************CREATE BATTLE*********//
   createBattle(request, response, next) {
-    const userId = request.body.userOneId;
-
-    // FIRST! check if there is a pending battle.
-    // if so, add current user to that battleId
-    // SQL: ELECT * FROM Battle WHERE userOneId != userId AND status = 'pending' LIMIT 1
-    // ===> let's say this return 62, then update that record to assign user to it
-    // SQL: UPDATE Battle SET userTwoId = userId WHERE battle-id = 62;
+    const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
 
     this._knex(this._battle) //check pending battle
       .select('*')
-      .whereNotIn('userOneId', [userId])
+      .whereNotIn('userOneId', [jwtUserId])
       .whereIn('status', ['pending'])
       .first()
       .then(record => {
         record
-          ? this._knex(this._battle)
+          ? this._knex(this._battle) //find pending battle
               .where('id', record.id)
-              .update({ status: 'progress', userTwoId: userId }, '*')
-              .then(battleObj => {
-                response.json(2);
+              .update({ status: 'progress', userTwoId: jwtUserId }, '*')
+              .then(() => {
+                response.json({ playerNum: 2, battleId: record.id });
               })
           : this._knex(this._battle) //if not, create new battle and add user
-              .insert({ status: 'pending', userOneId: userId })
-              .then(battleObj => {
-                response.json(1);
+              .whereNotIn('userOneId', [jwtUserId])
+              .insert({ status: 'pending', userOneId: jwtUserId })
+              .returning('id')
+              .then(battleId => {
+                console.log('my result-----', typeof battleId, battleId);
+                response.json({ playerNum: 1, battleId: battleId[0] });
               });
       });
   }

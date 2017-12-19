@@ -14,7 +14,7 @@ exports.up = function(knex) {
       .inTable('User')
       .onDelete('cascade')
       .index();
-    table.string('state');
+    table.jsonb('state');
   });
 };
 

@@ -21,7 +21,7 @@ exports.seed = function(knex, Promise) {
         },
         {
           id: 3,
-          deckname: 'Beat_down_',
+          deckname: 'g60',
           wins: 2,
           losses: 9,
           userId: 3,
@@ -29,7 +29,7 @@ exports.seed = function(knex, Promise) {
         },
         {
           id: 4,
-          deckname: 'g60_Deck',
+          deckname: 'MIT_GRAD',
           wins: 10,
           losses: 44,
           userId: 4,
@@ -42,6 +42,14 @@ exports.seed = function(knex, Promise) {
           losses: 3,
           userId: 5,
           cards: '146,150,151'
+        },
+        {
+          id: 6,
+          deckname: 'DEPT_OF_DEF',
+          wins: 10,
+          losses: 3,
+          userId: 6,
+          cards: '9,14,12'
         }
       ]);
     })
