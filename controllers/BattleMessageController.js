@@ -23,7 +23,7 @@ class BattleMessageController {
 
   //************GET MESSAGE*********//
   getMessage(request, response, next) {
-    const battleId = request.body.battleId;
+    const battleId = request.params.battleId;
 
     this._knex(this._battleMessage)
       .select('text')

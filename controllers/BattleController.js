@@ -41,28 +41,31 @@ class BattleController {
   }
 
   getBattleState(request, response, next) {
+    //console.log('got inside of getBattleState 1');
     const id = Number(request.params.battleId);
-    console.log('id passed-------', id);
 
     this._knex(this._battle)
       .select('state')
       .where('id', id)
       .first()
       .then(state => {
-        console.log('my state-------', state);
+        //console.log('myState From getBattleState');
         response.json(state.state);
       });
   }
 
   setBattleState(request, response, next) {
+    //console.log('got inside of setBattleState 1');
     const battleId = Number(request.body.battleId);
     const stateObj = request.body.stateObj;
+
+    //console.log('stateObj---------', stateObj);
 
     this._knex(this._battle)
       .where('id', battleId)
       .update({ state: stateObj }, '*')
       .then(battleObj => {
-        console.log('getBattleState-------', battleObj);
+        //console.log('my battleObj-----*****');
         response.json(battleObj);
       });
   }
@@ -72,7 +75,7 @@ class BattleController {
     const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
 
     this._knex(this._battle) //check pending battle
-      .select('*')
+      .select('id')
       .whereNotIn('userOneId', [jwtUserId])
       .whereIn('status', ['pending'])
       .first()
@@ -89,7 +92,6 @@ class BattleController {
               .insert({ status: 'pending', userOneId: jwtUserId })
               .returning('id')
               .then(battleId => {
-                console.log('my result-----', typeof battleId, battleId);
                 response.json({ playerNum: 1, battleId: battleId[0] });
               });
       });
