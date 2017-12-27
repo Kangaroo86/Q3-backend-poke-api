@@ -41,10 +41,6 @@ app.use(express.static(path.join('public')));
 //   response.sendStatus(406);
 // });
 
-//added to overcome limit. Ask nestor if this is ok
-//app.use(express.json({ limit: '50mb' }));
-//app.use(express.urlencoded({ limit: '50mb' }));
-
 const characterRouter = require('./instances/characterRouter');
 const deckRouter = require('./instances/deckRouter');
 const entityRouter = require('./instances/entityRouter');
@@ -91,13 +87,18 @@ const port = process.env.PORT || 3000;
 //   console.log(`Listening on port ${port}`); // eslint-disable-line no-console
 // });
 
+//**************SOCKET-IO**************//
+
 var server = require('http').Server(app); //socket-io
 var io = require('socket.io')(server); //socket-io
 server.listen(port, () => {
   console.log(`Listening on port ${port}`); // eslint-disable-line no-console
 });
 
-const SocketManager = require('./socket_io/SocketManager')(io); //socket-io
+//created SocketManger to managed all of socket activities
+const SocketManager = require('./socket_io/SocketManager')(io);
 io.on('connection', SocketManager); //socket-io
+
+//**************SOCKET-IO**************//
 
 module.exports = app;

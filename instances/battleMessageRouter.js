@@ -4,8 +4,8 @@ const battleMessageController = require('./battleMessageController');
 
 router.get(
   '/message/battle/:battleId(\\d+)',
-  battleMessageController.getMessage
+  battleMessageController.getAllMessages
 );
-router.post('/message', battleMessageController.createMessage);
+//router.post('/message', battleMessageController.createMessage);
 
 module.exports = router;

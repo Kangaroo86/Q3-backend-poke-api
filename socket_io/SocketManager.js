@@ -7,7 +7,7 @@ const knex = require('../knex');
 //let rooms = { g60: [], KingOfGame: [], PalletTown: [] };
 module.exports = io =>
   function(socket) {
-    //console.log('Socket Id *****' + socket.id);
+    console.log('Socket Id *****' + socket.id);
 
     //***VERIFY USERNAME***//
     // socket.on(VERIFY_USER, (name, userId, battleId) => {
@@ -43,43 +43,45 @@ module.exports = io =>
       });
     });
 
+    //*Creating room. incoming connections from clients
+    // let room = 'testroom';
+    // io.sockets.on('connection', socket => {
+    //   socket.on('room', room => {
+    //     socket.join(room);
+    //   });
+    // });
+    //
+    // io.sockets.in(room).emit('message', 'what is going on, party people?');
+
     //***SEND MESSAGES***//
     socket.on('MESSAGE_CREATE', messageObj => {
-      let { userId, battleId, message, author } = messageObj;
+      let { userId, battleId, text, name } = messageObj;
 
-      console.log('my messageObj*******', messageObj);
-
-      createMessage(userId, battleId, message);
-
-      getMessage(messageObj.battleId);
+      createMessage(userId, battleId, text, name);
+      socket.emit('MESSAGE_RESPONSE', messageObj);
+      //getMessages(messageObj.battleId);
       //io.emit('MESSAGE_RESPONSE', message);
     });
 
     //knex createMessage
-    function createMessage(userId, battleId, message) {
-      console.log('message created------', userId, battleId, message);
+    function createMessage(userId, battleId, message, name) {
       knex('BattleMessage')
         .insert({
           userId: userId,
           battleId: battleId,
-          text: message
+          text: message,
+          name: name
         })
         .catch(err => err);
     }
 
-    //knex getMessage
-    function getMessage(battleId) {
-      //let id = Number(battleId);
-      knex('BattleMessage')
-        .select('text', 'userId')
-        .where('battleId', battleId)
-        .then(arrayOfText => {
-          console.log('what is my arrayOfText+++++++', arrayOfText);
-          socket.emit('MESSAGE_RESPONSE', arrayOfText);
-          // arrayOfText.forEach(text => {
-          //   console.log('my text------', text);
-          //   socket.emit('MESSAGE_RESPONSE', text);
-          // });
-        });
-    }
+    //knex getMessages
+    // function getMessages(battleId) {
+    //   knex('BattleMessage')
+    //     .select('text', 'userId', 'name')
+    //     .where('battleId', battleId)
+    //     .then(arrayOfText => {
+    //       socket.emit('MESSAGE_RESPONSE', arrayOfText);
+    //     });
+    // }
   };
