@@ -69,37 +69,36 @@ class DeckController {
   createDeck(request, response, next) {
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
-      const cardsStr = request.body.pokemonIds.join();
       const deckName = request.body.deckName;
+      const wins = request.body.wins;
+      const losses = request.body.losses;
+      const cardsStr = request.body.pokemonIds.join();
       const userid = request.body.userId;
 
-      this._knex(this._user).where('id', userid).select('id').then(userId => {
-        //console.log('user query------', userId);
+      this._knex(this._user).where('id', userid).then(userId => {
         if (userId[0].id !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');
         } else if (request.body.deckName === '') {
           throw new Error('HTTP_400 deckName could not be blank');
         } else {
-          return this._knex.transaction(trx => {
-            return this._knex(this._deck)
-              .where({ userid })
-              .transacting(trx)
-              .insert(
-                {
-                  deckname: deckName,
-                  userId: userid,
-                  cards: cardsStr
-                },
-                '*'
-              )
-              .then(cards => {
-                response.json(cards);
-              })
-              .catch(err => {
-                trx.rollback();
-                throw err;
-              });
-          });
+          return this._knex(this._deck)
+            .where({ userid })
+            .insert(
+              {
+                deckname: deckName,
+                wins: wins,
+                losses: losses,
+                userId: userid,
+                cards: cardsStr
+              },
+              '*'
+            )
+            .then(cards => {
+              response.json(cards);
+            })
+            .catch(err => {
+              throw err;
+            });
         }
       });
     } catch (err) {
@@ -126,6 +125,7 @@ class DeckController {
       const paramDeckId = Number(request.params.deckid);
       const cardsStr = request.body.characterIdArray.join();
       const userid = Number(request.body.userId);
+
       this._knex(this._deck).where('userId', userid).then(deckObj => {
         if (deckObj[0].userId !== jwtUserId) {
           throw new Error('HTTP_401 unauthorized access');
@@ -174,6 +174,7 @@ class DeckController {
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       let paramDeckId = parseInt(request.params.deckid);
+      console.log('paramDeckId---------', paramDeckId);
       this._knex(this._deck)
         //.select('userId')
         .where('userId', jwtUserId)
@@ -185,6 +186,7 @@ class DeckController {
               .del()
               .where('id', paramDeckId)
               .then(result => {
+                console.log('delet result-------', result);
                 response.json(result);
               });
           }
