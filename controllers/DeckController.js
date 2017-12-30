@@ -174,7 +174,6 @@ class DeckController {
     try {
       const jwtUserId = request.jwt ? request.jwt.payload.sub : null;
       let paramDeckId = parseInt(request.params.deckid);
-      console.log('paramDeckId---------', paramDeckId);
       this._knex(this._deck)
         //.select('userId')
         .where('userId', jwtUserId)
@@ -186,7 +185,6 @@ class DeckController {
               .del()
               .where('id', paramDeckId)
               .then(result => {
-                console.log('delet result-------', result);
                 response.json(result);
               });
           }
