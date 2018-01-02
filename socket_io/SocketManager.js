@@ -5,9 +5,49 @@ const knex = require('../knex');
 
 //let connectedUsers = {};
 //let rooms = { g60: [], KingOfGame: [], PalletTown: [] };
-module.exports = io =>
-  function(socket) {
-    console.log('Socket Id *****' + socket.id);
+module.exports = io => {
+  io.on('connection', function(socket) {
+    console.log('Socket Id ********************' + socket.id);
+
+    //***SEND SOCKET_ID***// //NOTE not used in production
+    socket.on('CHAT_MOUNTED', user => {
+      socket.emit('RECEIVE_SOCKET', socket.id);
+    });
+
+    //***INFORM PLAYER TO UPDATE***// //NOTE not used in production
+    socket.on('STATE_UPDATED', () => {
+      var foo = setInterval(() => {
+        socket.emit('REFRESH_STATE');
+        console.log('waiting for refresh...');
+      }, 1000);
+      socket.on('REFRESH_DONE', () => {
+        console.log('refresh done!!!');
+        clearInterval(foo);
+      });
+    });
+
+    //***DEFAULT ROOM***// //NOTE not used in production
+    socket.join('Lobby');
+
+    //***SEND MESSAGES***//
+    socket.on('MESSAGE_CREATE', messageObj => {
+      let { userId, battleId, text, name } = messageObj;
+
+      createMessage(userId, battleId, text, name);
+      socket.emit('MESSAGE_RESPONSE', messageObj);
+    });
+
+    //knex createMessage
+    function createMessage(userId, battleId, message, name) {
+      knex('BattleMessage')
+        .insert({
+          userId: userId,
+          battleId: battleId,
+          text: message,
+          name: name
+        })
+        .catch(err => err);
+    }
 
     //***VERIFY USERNAME***//
     // socket.on(VERIFY_USER, (name, userId, battleId) => {
@@ -31,50 +71,6 @@ module.exports = io =>
     //   io.emit(USER_CONNECTED, connectedUsers);
     // });
 
-    //Tell player to update
-    socket.on('STATE_UPDATED', () => {
-      var foo = setInterval(() => {
-        socket.emit('REFRESH_STATE');
-        console.log('waiting for refresh...');
-      }, 1000);
-      socket.on('REFRESH_DONE', () => {
-        console.log('refresh done!!!');
-        clearInterval(foo);
-      });
-    });
-
-    //*Creating room. incoming connections from clients
-    // let room = 'testroom';
-    // io.sockets.on('connection', socket => {
-    //   socket.on('room', room => {
-    //     socket.join(room);
-    //   });
-    // });
-    //
-    // io.sockets.in(room).emit('message', 'what is going on, party people?');
-
-    //***SEND MESSAGES***//
-    socket.on('MESSAGE_CREATE', messageObj => {
-      let { userId, battleId, text, name } = messageObj;
-
-      createMessage(userId, battleId, text, name);
-      socket.emit('MESSAGE_RESPONSE', messageObj);
-      //getMessages(messageObj.battleId);
-      //io.emit('MESSAGE_RESPONSE', message);
-    });
-
-    //knex createMessage
-    function createMessage(userId, battleId, message, name) {
-      knex('BattleMessage')
-        .insert({
-          userId: userId,
-          battleId: battleId,
-          text: message,
-          name: name
-        })
-        .catch(err => err);
-    }
-
     //knex getMessages
     // function getMessages(battleId) {
     //   knex('BattleMessage')
@@ -84,4 +80,5 @@ module.exports = io =>
     //       socket.emit('MESSAGE_RESPONSE', arrayOfText);
     //     });
     // }
-  };
+  });
+};

@@ -81,7 +81,7 @@ app.use((error, request, response, next) => {
 
 const port = process.env.PORT || 3000;
 
-//******dont delete
+//******dont delete******//
 // app.listen(port, () => {
 //   if (process.env.NODE_ENV === 'test') return;
 //   console.log(`Listening on port ${port}`); // eslint-disable-line no-console
@@ -97,7 +97,7 @@ server.listen(port, () => {
 
 //created SocketManger to managed all of socket activities
 const SocketManager = require('./socket_io/SocketManager')(io);
-io.on('connection', SocketManager); //socket-io
+//io.on('connection', SocketManager); //socket-io
 
 //**************SOCKET-IO**************//
 
