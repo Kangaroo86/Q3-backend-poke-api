@@ -43,16 +43,12 @@ class BattleController {
 
   deleteBattleState(request, response, next) {
     const id = Number(request.params.battleId);
-    console.log('request.params--------------', request.params);
-    console.log('id--------------', id);
     this._knex(this._battle).where('id', id).del().then(result => {
-      console.log('my result------- ', result);
       response.json(result);
     });
   }
 
   getBattleState(request, response, next) {
-    //console.log('got inside of getBattleState 1');
     const id = Number(request.params.battleId);
 
     this._knex(this._battle)
@@ -60,7 +56,6 @@ class BattleController {
       .where('id', id)
       .first()
       .then(state => {
-        //console.log('myState From getBattleState');
         response.json(state.state);
       });
   }

@@ -1,20 +1,15 @@
 const knex = require('../knex');
 
-//const { createUser } = require('./Factories');
-//const { VERIFY_USER, USER_CONNECTED, USER_CREATED } = require('./Events');
-
-//let connectedUsers = {};
-//let rooms = { g60: [], KingOfGame: [], PalletTown: [] };
 module.exports = io => {
   io.on('connection', function(socket) {
     console.log('Socket Id ********************' + socket.id);
 
-    //***SEND SOCKET_ID***// //NOTE not used in production
+    //***SEND_SOCKET_ID***// //NOTE not used in production
     socket.on('CHAT_MOUNTED', user => {
       socket.emit('RECEIVE_SOCKET', socket.id);
     });
 
-    //***INFORM PLAYER TO UPDATE***// //NOTE not used in production
+    //***INFORM_PLAYER_TO_UPDATE***// //NOTE not used in production
     socket.on('STATE_UPDATED', () => {
       var foo = setInterval(() => {
         socket.emit('REFRESH_STATE');
@@ -26,21 +21,12 @@ module.exports = io => {
       });
     });
 
-    //***DEFAULT ROOM***// //NOTE not used in production
-    //socket.join('Lobby');
-
-    //***SEND MESSAGES***//
-    // socket.on('MESSAGE_CREATE', messageObj => {
-    //   let { userId, battleId, text, name } = messageObj;
-    //
-    //   createMessage(userId, battleId, text, name);
-    //   socket.emit('MESSAGE_RESPONSE', messageObj);
-    // });
-
+    //***CREATE_ROOM***//
     socket.on('CREATE_ROOM', roomBattleId => {
       socket.join(roomBattleId);
     });
 
+    //***SEND_MESSAGES***//
     socket.on('CREATE_MESSAGE', messageObj => {
       let { userId, battleId, text, name } = messageObj;
 
@@ -48,7 +34,7 @@ module.exports = io => {
       io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
     });
 
-    //knex createMessage
+    //***KNEX_CREATE_MESSAGE***//
     function createMessage(userId, battleId, message, name) {
       knex('BattleMessage')
         .insert({
@@ -81,15 +67,5 @@ module.exports = io => {
     //
     //   io.emit(USER_CONNECTED, connectedUsers);
     // });
-
-    //knex getMessages
-    // function getMessages(battleId) {
-    //   knex('BattleMessage')
-    //     .select('text', 'userId', 'name')
-    //     .where('battleId', battleId)
-    //     .then(arrayOfText => {
-    //       socket.emit('MESSAGE_RESPONSE', arrayOfText);
-    //     });
-    // }
   });
 };
