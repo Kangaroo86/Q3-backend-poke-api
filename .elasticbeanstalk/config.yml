@@ -1,14 +1,14 @@
 branch-defaults:
   capstoneproduction:
-    environment: 2017PokemonBackend-env
+    environment: 2017pokemoncapstone-env
   deployment:
-    environment: 2017PokemonBackend-env
+    environment: 2017pokemoncapstone-env
 environment-defaults:
-  2017PokemonBackend-env:
+  2017pokemoncapstone-env:
     branch: null
     repository: null
 global:
-  application_name: 2017-pokemon-backend
+  application_name: 2017PokemonCapstoneBackend
   default_ec2_keyname: 3mon0p-pokemon-backend
   default_platform: arn:aws:elasticbeanstalk:us-west-1::platform/Node.js running on
     64bit Amazon Linux/4.4.0
