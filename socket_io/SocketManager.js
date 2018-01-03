@@ -37,15 +37,15 @@ module.exports = io => {
     //   socket.emit('MESSAGE_RESPONSE', messageObj);
     // });
 
-    socket.on('createdRoom', roomBattleId => {
+    socket.on('CREATE_ROOM', roomBattleId => {
       socket.join(roomBattleId);
     });
 
-    socket.on('MESSAGE_CREATE', messageObj => {
+    socket.on('CREATE_MESSAGE', messageObj => {
       let { userId, battleId, text, name } = messageObj;
 
       createMessage(userId, battleId, text, name);
-      socket.to(battleId).emit('MESSAGE_RESPONSE', messageObj);
+      io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
     });
 
     //knex createMessage
