@@ -1,4 +1,6 @@
 branch-defaults:
+  capstoneproduction:
+    environment: 2017PokemonBackend-env
   deployment:
     environment: 2017PokemonBackend-env
 environment-defaults:
