@@ -9,7 +9,7 @@ environment-defaults:
     repository: null
 global:
   application_name: 2017PokemonCapstoneBackend
-  default_ec2_keyname: 3mon0p-pokemon-backend
+  default_ec2_keyname: 5lnc0p-2017pokemoncapstonebackend
   default_platform: arn:aws:elasticbeanstalk:us-west-1::platform/Node.js running on
     64bit Amazon Linux/4.4.0
   default_region: us-west-1
