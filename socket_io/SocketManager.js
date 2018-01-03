@@ -27,14 +27,25 @@ module.exports = io => {
     });
 
     //***DEFAULT ROOM***// //NOTE not used in production
-    socket.join('Lobby');
+    //socket.join('Lobby');
 
     //***SEND MESSAGES***//
+    // socket.on('MESSAGE_CREATE', messageObj => {
+    //   let { userId, battleId, text, name } = messageObj;
+    //
+    //   createMessage(userId, battleId, text, name);
+    //   socket.emit('MESSAGE_RESPONSE', messageObj);
+    // });
+
+    socket.on('createdRoom', roomBattleId => {
+      socket.join(roomBattleId);
+    });
+
     socket.on('MESSAGE_CREATE', messageObj => {
       let { userId, battleId, text, name } = messageObj;
 
       createMessage(userId, battleId, text, name);
-      socket.emit('MESSAGE_RESPONSE', messageObj);
+      socket.to(battleId).emit('MESSAGE_RESPONSE', messageObj);
     });
 
     //knex createMessage
