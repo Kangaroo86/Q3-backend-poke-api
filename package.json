@@ -7,7 +7,7 @@
     "test": "mocha",
     "test-jest": "jest",
     "start:dev": "nodemon server.js",
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "knex": "knex"
   },
   "repository": {
