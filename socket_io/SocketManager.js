@@ -14,7 +14,7 @@ module.exports = io => {
       var foo = setInterval(() => {
         socket.emit('REFRESH_STATE');
         console.log('waiting for refresh...');
-      }, 1000);
+      }, 3000);
       socket.on('REFRESH_DONE', () => {
         console.log('refresh done!!!');
         clearInterval(foo);
