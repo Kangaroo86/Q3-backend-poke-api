@@ -65,7 +65,7 @@ class BattleController {
     const battleId = Number(request.body.battleId);
     const stateObj = request.body.stateObj;
 
-    //console.log('stateObj---------', stateObj);
+    console.log('stateObj---------', stateObj);
 
     this._knex(this._battle)
       .where('id', battleId)

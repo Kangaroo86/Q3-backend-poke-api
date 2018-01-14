@@ -23,12 +23,14 @@ module.exports = io => {
 
     //***CREATE_ROOM***//
     socket.on('CREATE_ROOM', roomBattleId => {
+      console.log('roomBattleId-------', roomBattleId);
       socket.join(roomBattleId);
     });
 
     //***SEND_MESSAGES***//
     socket.on('CREATE_MESSAGE', messageObj => {
       let { userId, battleId, text, name } = messageObj;
+      console.log('messageObj-------', messageObj);
 
       createMessage(userId, battleId, text, name);
       io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
