@@ -71,7 +71,6 @@ class BattleController {
       .where('id', battleId)
       .update({ state: stateObj }, '*')
       .then(battleObj => {
-        //console.log('my battleObj-----*****');
         response.json(battleObj);
       });
   }
