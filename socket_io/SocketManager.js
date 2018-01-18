@@ -2,12 +2,7 @@ const knex = require('../knex');
 
 module.exports = io => {
   io.on('connection', function(socket) {
-    console.log('Socket Id ********************' + socket.id);
-
-    //***SEND_SOCKET_ID***// //NOTE not used in production
-    socket.on('CHAT_MOUNTED', user => {
-      socket.emit('RECEIVE_SOCKET', socket.id);
-    });
+    console.log('Socket id :::::::::::::::: ' + socket.id);
 
     //***INFORM_PLAYER_TO_UPDATE***// //NOTE not used in production
     // socket.on('STATE_UPDATED', () => {
@@ -21,13 +16,14 @@ module.exports = io => {
     //   });
     // });
 
+    //***SET_BATTLE_STATE***// //TODO WIP
     socket.on('STATE_UPDATED', stateObj => {
       setBattleState(stateObj);
     });
 
     //***CREATE_ROOM***//
     socket.on('CREATE_ROOM', roomBattleId => {
-      console.log('roomBattleId*************', roomBattleId);
+      console.log('Room_Id*************', roomBattleId);
       socket.join(roomBattleId);
     });
 
@@ -54,14 +50,17 @@ module.exports = io => {
     //TODO WIP
     function setBattleState(stateObj) {
       //console.log('stateObj--------', stateObj);
-
       knex('Battle')
         .where('id', stateObj.battle_id)
         .update({ state: stateObj }, '*')
         .then(obj => {
-          console.log('obj 1++++++++', obj);
+          //console.log('obj 1++++++++', obj);
           console.log('obj--------', obj[0].state);
+          //console.log('battle_id--------', obj[0].state.battle_id);
           socket.emit('UPDATED_BATTLE_STATE', obj[0].state);
+          //   io
+          //     .in(obj[0].state.battle_id)
+          //     .emit('UPDATED_BATTLE_STATE', obj[0].state);
         });
     }
 
