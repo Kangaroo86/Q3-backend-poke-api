@@ -18,6 +18,7 @@ module.exports = io => {
 
     //***SET_BATTLE_STATE***// //TODO WIP
     socket.on('STATE_UPDATED', stateObj => {
+      console.log('stateObj-------', stateObj);
       setBattleState(stateObj);
     });
 
@@ -57,10 +58,10 @@ module.exports = io => {
           //console.log('obj 1++++++++', obj);
           console.log('obj--------', obj[0].state);
           //console.log('battle_id--------', obj[0].state.battle_id);
-          socket.emit('UPDATED_BATTLE_STATE', obj[0].state);
-          //   io
-          //     .in(obj[0].state.battle_id)
-          //     .emit('UPDATED_BATTLE_STATE', obj[0].state);
+          //socket.emit('UPDATED_BATTLE_STATE', obj[0].state);
+          io
+            .in(obj[0].state.battle_id)
+            .emit('UPDATED_BATTLE_STATE', obj[0].state);
         });
     }
 
