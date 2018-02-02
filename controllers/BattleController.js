@@ -56,7 +56,7 @@ class BattleController {
       .where('id', id)
       .first()
       .then(state => {
-        console.log('what is my state------', state);
+        //console.log('what is my state------', state);
         response.json(state.state);
       });
   }
