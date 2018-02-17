@@ -18,7 +18,6 @@ module.exports = io => {
 
     //***SET_BATTLE_STATE***// //TODO WIP
     socket.on('STATE_UPDATED', stateObj => {
-      console.log('stateObj-------', stateObj);
       setBattleState(stateObj);
     });
 
@@ -33,8 +32,10 @@ module.exports = io => {
       let { userId, battleId, text, name } = messageObj;
 
       createMessage(userId, battleId, text, name);
+
+      //setInterval(updateMessage(battleId), 1000); //HACK turn to promiese later
       //updateMessage(battleId); //TODO causing one delay when receiving messages
-      io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
+      //io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
     });
 
     //***KNEX_CREATE_MESSAGE***//
@@ -46,29 +47,28 @@ module.exports = io => {
           text: message,
           name: name
         })
+        .then(() => updateMessage(battleId))
         .catch(err => err);
     }
 
-    //TODO causing one delay when receiving messages
-    // function updateMessage(battleId) {
-    //   knex('BattleMessage')
-    //     .where('battleId', battleId)
-    //     .select('*')
-    //     .then(messages => {
-    //       console.log('my messages------', messages);
-    //       io.in(battleId).emit('MESSAGE_RESPONSE', messages);
-    //     });
-    // }
+    //NOTE fixed chat
+    function updateMessage(battleId) {
+      knex('BattleMessage')
+        .where('battleId', battleId)
+        .select('*')
+        .then(messages => {
+          io.in(battleId).emit('MESSAGE_RESPONSE', messages);
+        });
+    }
 
     //TODO not compatible with socket io yet
     function setBattleState(stateObj) {
+      console.log('setBattleState--------------', stateObj);
       knex('Battle')
         .where('id', stateObj.battle_id)
         .update({ state: stateObj }, '*')
         .then(obj => {
-          //console.log('obj-------------', obj);
-          //console.log('obj[0].state+++++++++', obj[0].state);
-
+          console.log('obj---------', obj);
           io
             .in(obj[0].state.battle_id)
             .emit('UPDATED_BATTLE_STATE', obj[0].state);
