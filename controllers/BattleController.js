@@ -91,7 +91,7 @@ class BattleController {
               .where('id', record.id)
               .update({ status: 'progress', userTwoId: jwtUserId }, '*')
               .then(() => {
-                response.json({ playerNum: 2, battleId: record.id });
+                response.json({ playerNum: 2, battleId: record.id }); //created battle, now send data to F/E
               })
           : this._knex(this._battle) //if not, create new battle and add user
               .whereNotIn('userOneId', [jwtUserId])
