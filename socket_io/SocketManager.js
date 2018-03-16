@@ -20,12 +20,7 @@ module.exports = io => {
     /*SEND_MESSAGES*/
     socket.on('CREATE_MESSAGE', messageObj => {
       let { userId, battleId, text, name } = messageObj;
-
       createMessage(userId, battleId, text, name);
-
-      //setInterval(updateMessage(battleId), 1000); //HACK turn to promiese later
-      //updateMessage(battleId); //TODO causing one delay when receiving messages
-      //io.in(battleId).emit('MESSAGE_RESPONSE', messageObj);
     });
 
     /*KNEX_CREATE_MESSAGE*/
@@ -41,6 +36,7 @@ module.exports = io => {
         .catch(err => err);
     }
 
+    /*KNEX_UPDATE_MESSAGE*/
     function updateMessage(battleId) {
       knex('BattleMessage')
         .where('battleId', battleId)
@@ -48,7 +44,7 @@ module.exports = io => {
         .then(messages => {
           io.in(battleId).emit('MESSAGE_RESPONSE', messages);
         });
-    } //TODO WIP
+    }
 
     /*SET_BATTLE_STATE*/
     socket.on('STATE_UPDATED', stateObj => {
@@ -57,12 +53,12 @@ module.exports = io => {
 
     //TODO not compatible with socket io yet
     function setBattleState(stateObj) {
-      //console.log('setBattleState--------------', stateObj);
+      console.log('setBattleState--------------', stateObj);
       knex('Battle')
         .where('id', stateObj.battle_id)
         .update({ state: stateObj }, '*')
         .then(obj => {
-          //console.log('obj---------', obj);
+          console.log('obj---------', obj);
           io
             .in(obj[0].state.battle_id)
             .emit('UPDATED_BATTLE_STATE', obj[0].state);
